@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block main %}
+    <div id="main">
+
+        <!--<ul>-->
+        <table class="center">
+
+
+
+
+        {% for item in videos %}
+            <tr>
+
+
+            <td>
+                <img src="{{ item.3 }}" alt="thumbnail">
+            </td>
+
+
+
+            <td>
+                <li>{{ item.0 }}</li>
+                <a href="https://youtu.be/{{ item.1 }}"><li>youtu.be/{{ item.1 }}</li></a>
+                <li>{{ item.2 }}</li>
+                <li>{{ item.4 }}</li>
+
+            </td>
+
+
+
+            </tr>
+
+
+        {% endfor %}
+
+        </table>
+
+    <!--    </ul> -->
+
+
+    </div>
+{% endblock %}
