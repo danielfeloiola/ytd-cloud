@@ -52,9 +52,6 @@ def index():
         # get search str
         query = request.form.get("query")
 
-        # debug
-        #print("debug test 1")
-
         # call yt search function
         try:
             youtube_search(query)
@@ -72,7 +69,7 @@ def index():
 
 
 
-######
+############
 
 
 

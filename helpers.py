@@ -1,12 +1,6 @@
 import requests
 import urllib.parse
 from flask import redirect, render_template, request, session, send_file
-from functools import wraps
-
-from cs50 import SQL
-
-# configura o banco de dados
-db = SQL("sqlite:///ytdata.db")
 
 
 def apology(message, code=400):
