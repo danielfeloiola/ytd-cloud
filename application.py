@@ -10,10 +10,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required
 
 
+
+from apiclient.discovery import build
+from apiclient.errors import HttpError
+from oauth2client.tools import argparser
+
 videos = []
 channels = []
 playlists = []
 
+
+DEVELOPER_KEY = os.environ['API']
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
 
 # Configure application
 app = Flask(__name__)
@@ -58,7 +67,7 @@ def index():
         except HttpError as e:
             print("An HTTP error %d occurred:" + str(e.resp.status) + str(e.content))
 
-        print(videos)
+        #print(videos)
 
         return render_template("results.html", videos=videos)
 
