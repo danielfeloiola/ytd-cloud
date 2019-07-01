@@ -9,16 +9,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required
 
-
+import requests
+import json
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
-
-videos = []
-channels = []
-playlists = []
-
 
 DEVELOPER_KEY = os.environ['API']
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -51,134 +47,106 @@ db = SQL("sqlite:///ytdata.db")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """Show the main page"""
+    """
+    GET: Show the main page
+    POST: performs a youtube api search and display results
+    """
 
     if request.method == "POST":
 
-        #import the search function
-        from test import youtube_search
+        # lists for "storage"
+        videos = []
+        channels = []
+        playlists = []
 
         # get search str
         query = request.form.get("query")
 
-        # call yt search function
-        try:
-            youtube_search(query)
-        except HttpError as e:
-            print("An HTTP error %d occurred:" + str(e.resp.status) + str(e.content))
+        #import the search function
+        #from test import youtube_search
+        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
 
-        #print(videos)
+        # Call the search.list method to retrieve results matching the specified
+        # query term.
+        search_response = youtube.search().list(q=query, part="id,snippet").execute()
+
+        # Add each result to the appropriate list, and then display the lists of
+        # matching videos, channels, and playlists.
+        for search_result in search_response.get("items", []):
+
+            # usa apenas os vídeos recomendados
+            if search_result["id"]["kind"] == "youtube#video":
+                list = [search_result["snippet"]["title"],
+                        search_result["id"]["videoId"],
+                        search_result["snippet"]["channelTitle"],
+                        search_result["snippet"]["channelId"],
+                        search_result["snippet"]["publishedAt"],
+                        search_result["snippet"]["description"],
+                        search_result["snippet"]["thumbnails"]["default"]["url"],
+                        "video"
+                        ]
+                videos.append(list)
+
+
+
 
         return render_template("results.html", videos=videos)
 
     # GET request
     elif request.method == "GET":
-
         return render_template("index.html")
+
+
+@app.route("/results/<id>", methods=["GET", "POST"])
+def results(id):
+    """
+    Receives a youtube video id, and get it's related videos
+    the related videos are displayed to the user
+    """
+
+    # lists for "storage"
+    videos = []
+    channels = []
+    playlists = []
+
+    # get the video id
+    video_id = id
+
+    # setup api
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
+
+    # Call the search.list method to retrieve results matching the specified
+    # query term.
+    #search_response = youtube.search().list(q=query, part="id,snippet").execute()
+    res = youtube.search().list(relatedToVideoId=video_id,
+                                part="id,snippet",
+                                maxResults=20,
+                                type='video').execute()
+
+    # Add each result to the appropriate list, and then display the lists of
+    # matching videos, channels, and playlists.
+    for search_result in res.get("items", []):
+
+        # usa apenas os vídeos recomendados
+        if search_result["id"]["kind"] == "youtube#video":
+            list = [search_result["snippet"]["title"],
+                    search_result["id"]["videoId"],
+                    search_result["snippet"]["channelTitle"],
+                    search_result["snippet"]["channelId"],
+                    search_result["snippet"]["publishedAt"],
+                    search_result["snippet"]["description"],
+                    search_result["snippet"]["thumbnails"]["default"]["url"],
+                    "video"
+                    ]
+            videos.append(list)
+
+
+    return render_template("results.html", videos=videos)
 
 
 
 ############
 
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Log user in"""
-
-    # Forget any user_id
-    session.clear()
-
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
-
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 403)
-
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 403)
-
-        # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
-
-        # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
-
-        #makes the username global
-        username = request.form.get("username")
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
-
-
-@app.route("/logout")
-def logout():
-    """Log user out"""
-
-    # Forget any user_id
-    session.clear()
-
-    # Redirect user to login form
-    return redirect("/")
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
-
-     # Forget any user_id
-    session.clear()
-
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
-
-    # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 403)
-
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 403)
-
-       # Ensure passwords match
-        if request.form.get("password") != request.form.get("confirmation"):
-            return apology("Passwords don't match", 403)
-
-        # encrypt passwprd
-        hash_password = generate_password_hash(request.form.get("password"))
-
-        # try to add user to database
-        result = db.execute("INSERT INTO users (username, hash) VALUES (:username, :hash_password)",
-                          username = request.form.get("username"),
-                          hash_password = hash_password
-                          )
-        if not result:
-            return apology("username already exists", 403)
-
-        # Do the login
-        session["user_id"] = result
-        print(session)
-
-        # makes username global
-        username = request.form.get("username")
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # if the user is looking for the login page
-    else:
-        return render_template("register.html")
 
 
 

@@ -10,31 +10,31 @@
         <!--<ul>-->
         <table class="center">
 
-
-
-
         {% for item in videos %}
             <tr>
 
 
-            <td>
-                <img src="{{ item.3 }}" alt="thumbnail">
-            </td>
+                <td>
+                    <img src="{{ item.6 }}" alt="thumbnail">
+                </td>
 
+                <td>
 
+                    <li>{{ item.0 }}</li>
+                    <a href="https://youtu.be/{{ item.1 }}"><li>youtu.be/{{ item.1 }}</li></a>
+                    <li>{{ item.2 }}</li>
+                    <li>{{ item.7 }}</li>
 
-            <td>
-                <li>{{ item.0 }}</li>
-                <a href="https://youtu.be/{{ item.1 }}"><li>youtu.be/{{ item.1 }}</li></a>
-                <li>{{ item.2 }}</li>
-                <li>{{ item.4 }}</li>
+                </td>
 
-            </td>
-
-
+                <td>
+                    <!-- add a next button here -->
+                    <a href="/results/{{ item.1 }}" style="color: grey">
+                        <span class="glyphicon glyphicon-chevron-right">next</span>
+                    </a>
+                </td>
 
             </tr>
-
 
         {% endfor %}
 

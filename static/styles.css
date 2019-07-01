@@ -1,7 +1,14 @@
+nav .navbar
+{
+    background-color: red;
+
+}
+
 nav .navbar-brand
 {
     /* size for brand */
     font-size: xx-large;
+
 }
 
 /* colors for brand */
@@ -11,7 +18,7 @@ nav .navbar-brand .blue
 }
 nav .navbar-brand .red
 {
-    color: #ea433b;
+    color: #ffffff;
     font-family: monospace;
 }
 nav .navbar-brand .yellow
@@ -71,6 +78,14 @@ table.center
 tr:hover
 {
     background-color: #f0f5f5;
+}
+
+footer
+{
+    position: absolute;
+    margin-left: 35%;
+    bottom:10px;
+
 }
 /*
 ul{
