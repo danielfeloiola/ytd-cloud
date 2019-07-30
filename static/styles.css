@@ -29,6 +29,9 @@ nav .navbar-brand .green
 {
     color: #2e944b;
 }
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,.9);
+}
 
 main .form-control
 {

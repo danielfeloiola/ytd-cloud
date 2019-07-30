@@ -1,4 +1,4 @@
-import os
+
 
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
@@ -9,16 +9,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required
 
-import requests
-import json
+from api import related_search, query_search
 
-from apiclient.discovery import build
-from apiclient.errors import HttpError
-from oauth2client.tools import argparser
-
-DEVELOPER_KEY = os.environ['API']
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
 
 # Configure application
 app = Flask(__name__)
@@ -41,9 +33,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 #Session(app)
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///ytdata.db")
-
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -52,49 +41,81 @@ def index():
     POST: performs a youtube api search and display results
     """
 
-    if request.method == "POST":
+    return render_template("index.html")
 
-        # lists for "storage"
-        videos = []
-        channels = []
-        playlists = []
+
+
+@app.route("/navegar", methods=["GET", "POST"])
+def navegar():
+    """
+    GET: Show the query page
+    POST: performs a youtube api search and display results
+    """
+
+    # GET request
+    if request.method == "GET":
+        return render_template("navegar.html")
+
+    # POST request
+    elif request.method == "POST":
+
 
         # get search str
         query = request.form.get("query")
+        seed = request.form.get("seed-mode")
 
-        #import the search function
-        #from test import youtube_search
-        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
+        #videos = ytnav(query, seed)
 
-        # Call the search.list method to retrieve results matching the specified
-        # query term.
-        search_response = youtube.search().list(q=query, part="id,snippet").execute()
+        #for video in videos:
+            #print(video)
 
-        # Add each result to the appropriate list, and then display the lists of
-        # matching videos, channels, and playlists.
-        for search_result in search_response.get("items", []):
-
-            # usa apenas os vídeos recomendados
-            if search_result["id"]["kind"] == "youtube#video":
-                list = [search_result["snippet"]["title"],
-                        search_result["id"]["videoId"],
-                        search_result["snippet"]["channelTitle"],
-                        search_result["snippet"]["channelId"],
-                        search_result["snippet"]["publishedAt"],
-                        search_result["snippet"]["description"],
-                        search_result["snippet"]["thumbnails"]["default"]["url"],
-                        "video"
-                        ]
-                videos.append(list)
+        if request.form.get("seed-mode") == True:
+            videos = related_search(query)
+        else:
+            videos = query_search(query)
 
 
-
-
+        # render the page
         return render_template("results.html", videos=videos)
 
+@app.route("/coletar", methods=["GET", "POST"])
+def coletar():
+    """
+    GET: Show the query page
+    POST: performs a youtube api search and display results
+    """
+
     # GET request
-    elif request.method == "GET":
-        return render_template("index.html")
+    if request.method == "GET":
+        return render_template("coletar.html")
+
+    # POST request
+    elif request.method == "POST":
+
+
+        # get search str
+        query = request.form.get("query")
+        seed = request.form.get("seed-mode")
+        profundidade = request.form.get("profundidade")
+
+        #videos = ytcollect(query, seed) # adicionar a profundidade depois
+        ########################################################################
+
+        # Faz um query search, e para cada resultado faz uma busca de video relacionados
+        videos = query_search(query)
+        final_video_list += videos
+
+        for video in videos:
+            videos2 = related_search(video[2])
+            final_video_list += videos2
+
+        #return final_video_list
+
+
+        ########################################################################
+
+        # render the page
+        return render_template("results.html", videos=final_video_list)
 
 
 @app.route("/results/<id>", methods=["GET", "POST"])
@@ -104,48 +125,10 @@ def results(id):
     the related videos are displayed to the user
     """
 
-    # lists for "storage"
-    videos = []
-    channels = []
-    playlists = []
 
-    # get the video id
-    video_id = id
-
-    # setup api
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
-
-    # Call the search.list method to retrieve results matching the specified
-    # query term.
-    #search_response = youtube.search().list(q=query, part="id,snippet").execute()
-    res = youtube.search().list(relatedToVideoId=video_id,
-                                part="id,snippet",
-                                maxResults=20,
-                                type='video').execute()
-
-    # Add each result to the appropriate list, and then display the lists of
-    # matching videos, channels, and playlists.
-    for search_result in res.get("items", []):
-
-        # usa apenas os vídeos recomendados
-        if search_result["id"]["kind"] == "youtube#video":
-            list = [search_result["snippet"]["title"],
-                    search_result["id"]["videoId"],
-                    search_result["snippet"]["channelTitle"],
-                    search_result["snippet"]["channelId"],
-                    search_result["snippet"]["publishedAt"],
-                    search_result["snippet"]["description"],
-                    search_result["snippet"]["thumbnails"]["default"]["url"],
-                    "video"
-                    ]
-            videos.append(list)
-
+    videos = related_search(id)
 
     return render_template("results.html", videos=videos)
-
-
-
-############
 
 
 
