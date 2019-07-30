@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Coletar
+{% endblock %}
+
+{% block main %}
+    <form action="/coletar" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="query" placeholder="Query" type="text"><br><br>
+            <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="profundidade" type="text"><br><br>
+            <input type="checkbox" name="seed-mode" value="True"> Use um video_id como seed<br><br>
+            <button class="btn btn-primary" type="submit">Pesquisar</button>
+        </div>
+    </form>
+
+    <footer class="small text-center text-muted" style="align: center">
+        Código disponível no <a href="https://github.com/">GitHub</a>.
+    </footer>
+{% endblock %}
