@@ -118,6 +118,18 @@ def coletar():
         return render_template("results.html", videos=final_video_list)
 
 
+@app.route("/analisar") #, methods=["GET", "POST"]
+def analisar():
+    """
+    Cria uma visualização usando os dados coletados
+    """
+
+
+
+        # render the page
+    return render_template("analisar.html")
+
+
 @app.route("/results/<id>", methods=["GET", "POST"])
 def results(id):
     """
