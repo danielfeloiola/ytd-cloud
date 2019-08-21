@@ -7,3 +7,5 @@ oauth2client
 google-api-python-client
 python-dotenv
 werkzeug
+flask_socketio
+csv
