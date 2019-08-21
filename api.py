@@ -8,6 +8,8 @@ import os
 import csv
 
 # API
+
+# voltar para esse metodo apos a mudanca para o socketio
 DEVELOPER_KEY = os.environ['API']
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
