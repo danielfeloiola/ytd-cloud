@@ -63,6 +63,12 @@ def related_search(video_id):
                     search_result["snippet"]["thumbnails"]["default"]["url"],
                     "video"]
 
+            # adiciona o node a lista de videos
+            videos.append(node)
+
+            # adiciona o video a lista com nomes de videos
+            video_names[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
+
             # cria um edge
             edge = [video_id,
                     video_names[video_id],
@@ -79,11 +85,6 @@ def related_search(video_id):
                 writer2 = csv.writer(csvfile2, lineterminator = '\n')
                 writer2.writerow(edge)
 
-            # adiciona o node a lista de videos
-            videos.append(node)
-
-            # adiciona o video a lista com nomes de videos
-            video_names[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
 
     # adiciona ao dicionario
     dict[video_id] = search_response
@@ -116,6 +117,12 @@ def query_search(query):
                     search_result["snippet"]["thumbnails"]["default"]["url"],
                     "video"]
 
+            # adiciona o node a lista de videos
+            videos.append(node)
+
+            # adiciona o video a lista com nomes de videos
+            video_names[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
+
             # cria um edge
             edge = ['query result',
                     'query: ' + query,
@@ -132,11 +139,6 @@ def query_search(query):
                 writer2 = csv.writer(csvfile2, lineterminator = '\n')
                 writer2.writerow(edge)
 
-            # adiciona o node a lista de videos
-            videos.append(node)
-
-            # adiciona o video a lista com nomes de videos
-            video_names[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
 
     # retorna a lista de videos
     return videos
