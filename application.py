@@ -1,5 +1,6 @@
 # IMPORT STATEMENTS (DUH!)
 import csv
+import os
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
@@ -8,7 +9,12 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
 from helpers import apology, login_required
-from api import related_search, query_search
+from api import search
+
+
+# configuracoes da API
+MAX_RESULTS = 5
+DEVELOPER_KEY = ""
 
 
 # Configura a application
@@ -29,7 +35,7 @@ def after_request(response):
     return response
 
 
-# Configure session to use filesystem (instead of signed cookies)
+# Configura a session
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -66,9 +72,9 @@ def navegar():
 
         # determina se e necessaria uma busca por relacionados ou por termo
         if request.form.get("seed-mode") == True:
-            videos = related_search(query)
+            videos = search('related', query)
         else:
-            videos = query_search(query)
+            videos = search('query', query)
 
         # render the page
         return render_template("results.html", videos=videos)
@@ -80,7 +86,11 @@ def coletar():
     GET: Mostra a pagina com formulario para a coleta
     POST: preforma a busca na API e mostra os resultados
 
-    O prceso é o mesmo da navegacao, mas e possivel fazer em dupla profundidade
+    O prceso é o mesmo da navegacao, mas e possivel fazer em diferentes
+    niveis de profundidade:
+    nivel 1: apenas resultados de uma busca.
+    nivel 2: resultados de busca e suas recomendacoes
+    nivel 3: resultados de busca, recomendacoes e recomendacoes subsequentes
     """
 
     # GET request
@@ -90,38 +100,100 @@ def coletar():
     # POST request
     elif request.method == "POST":
 
-
-        # get search str
+        # pega os dados da pagina
         query = request.form.get("query")
         seed = request.form.get("seed-mode")
         profundidade = request.form.get("profundidade")
 
-        ########################################################################
-        # adicionar a profundidade depois
-        ########################################################################
+        # lista final a ser retornada
+        final_video_list = []
 
-        # Faz um query search e coloca os resultados na lista
-        videos = query_search(query)
-        final_video_list += videos
+        # varia de acordo com a profundidade
+        if profundidade == '1':
 
-        # itera por cada resultado e faz uma busca de relacionados para cada um
-        for video in videos:
-            videos2 = related_search(video[2])
-            final_video_list += videos2
+            videos = search('query', query)
+            final_video_list += videos
+
+        elif profundidade == '2':
+
+            # Faz um query search e coloca os resultados na lista
+            videos = search('query', query)
+            final_video_list += videos
+
+            # itera por cada resultado e faz uma busca de relacionados para cada
+            for video in videos:
+                videos2 = search('related', video[0])
+                final_video_list += videos2
+
+        elif profundidade == '3':
+
+            level_2 = []
+
+            # Faz um query search e coloca os resultados na lista
+            videos = search('query', query)
+            final_video_list += videos
+
+            # itera por cada resultado e faz uma busca de relacionados para cada
+            for video in videos:
+                videos2 = search('related', video[0])
+                final_video_list += videos2
+                level_2 += videos2
+
+            # itera por cada resultado e faz uma busca de relacionados para
+            # cada um mais uma vez
+            for vd in level_2:
+                videos3 = search('related', vd[0])
+                final_video_list += videos3
+
+        else:
+            return render_template("coletar.html", msg="verifique a profundidade")
+
 
         # renderiza a pagina
         return render_template("results.html", videos=final_video_list)
 
 
-@app.route("/analisar") #, methods=["GET", "POST"]
+@app.route("/analisar")
 def analisar():
     """
     Cria uma visualização usando os dados coletados
     """
 
-
     # render the page
     return render_template("analisar.html")
+
+@app.route("/config", methods=["GET", "POST"])
+def config():
+    """
+    Renderiza uma página de configurações
+    Post: permite alterar a chave da API e o maxresults
+    """
+
+    # mostra a pagina
+    if request.method == "GET":
+        return render_template("config.html")
+    # se forem feitas alteracoes
+    else:
+        radio = max = request.form.get("radio")
+
+        # para mudancas no max results
+        if radio == "mr":
+            max = request.form.get("maxresults")
+            global MAX_RESULTS
+            MAX_RESULTS = max
+
+            return render_template("config.html", msg="Numero de resultados alterado")
+
+        # mudancas na chave da API
+        elif radio == "api":
+            api = request.form.get("new-api")
+            global DEVELOPER_KEY
+            DEVELOPER_KEY = api
+
+            return render_template("config.html", msg="Chave da API alterada")
+
+        # mostrar a pagina novamente
+        #return render_template("config.html")
 
 
 @app.route("/results/<id>", methods=["GET", "POST"])
@@ -132,7 +204,7 @@ def results(id):
 
     """
 
-    videos = related_search(id)
+    videos = search('related', id)
 
     return render_template("results.html", videos=videos)
 
@@ -142,9 +214,6 @@ def get_nodes():
     Manda os dados dos nodes para o usuario via socket-io
     Faz a leitura a partir do arquivo csv
     '''
-
-    # PRECISA SER ALTERADO DE FORMA QUE CADA NO SEJA UNICO
-
 
     # cria uma lista para armazenar dados
     nodes = []

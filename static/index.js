@@ -1,4 +1,4 @@
-
+// quando o conteudo da dom estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
 
     // Liga o websocket
@@ -40,17 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let point of data)
         {
-/*
-            graph.nodes.push({
-                id:  point[0],
-                label: point[1],
-                x: Math.random(),
-                y: Math.random(),
-                size: 3,
-                color: '#000000'
-            });
-*/
-
 
             //cria o node
             node = {
@@ -62,13 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 color: '#000000'
             }
 
+            // adiciona ao grafo
             s.graph.addNode(node)
-            //console.log(node)
 
         }
 
     });
-
 
     // Ao receber os dados de um edge
     socket.on('get_edges', data =>
@@ -77,16 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let point of data)
         {
-            //console.log(Object.keys(data).length);
-/*
-            graph.edges.push({
-                id:  counter,
-                source: point[0],
-                target: point[1],
-                color: '#000000',
-                type: 'arrow'
-            });
-*/
 
             // cria um edge
             edge = {
@@ -98,13 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 type:'arrow',
             }
 
-            //graph.edges.push(edge);
+            // adiciona ao grafo
             s.graph.addEdge(edge)
 
             counter++
         }
 
-        ////////////////////////////////////////////////////////////////////
+        // ajustes finais do grafo
 
         // Carrega o grafo no sigma
         s.graph.read(graph);
@@ -115,19 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // inicia o algoritmo de espacialização
         s.startForceAtlas2({worker: true, barnesHutOptimize: false});
 
-        //console.log('force atlas started')
-        console.log(s.isForceAtlas2Running());
-
         // para o algoritmo apos 10s
         window.setTimeout(function() {s.killForceAtlas2()}, 10000);
-
-        //console.log('testing!!!!')
-
-        //console.log(graph)
-        //console.log(s)
-
-        ///////////////////////////////////////////////////////////////////
-
 
     });
 
