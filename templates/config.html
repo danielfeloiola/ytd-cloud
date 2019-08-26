@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Configurações
+{% endblock %}
+
+{% block main %}
+
+    {{ msg }}
+    <hr>
+    <form action="/config" method="post">
+        <div class="form-group">
+            <input type="radio" name="radio" value="mr">
+                <!-- Muda a quantidade de respostas-->
+                <input autocomplete="off" autofocus class="form-control" name="maxresults" placeholder="Max Results (1-20)" type="number"><br><br>
+                <button class="btn btn-primary" type="submit">Mudar Max Res</button>
+            <br>
+            <hr>
+            <input type="radio" name="radio" value="api">
+                <!-- Muda a chave da API -->
+                <input autocomplete="off" autofocus class="form-control" name="new-api" placeholder="Nova chave da API" type="text"><br><br>
+                <button class="btn btn-primary" type="submit">Mudar chave da API</button>
+            <br>
+            <hr>
+        </div>
+    </form>
+
+    <footer class="small text-center text-muted" style="align: center">
+        Código disponível no <a href="https://github.com/">GitHub</a>.
+    </footer>
+{% endblock %}
