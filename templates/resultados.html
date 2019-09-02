@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Results
+    Resultados
 {% endblock %}
 
 {% block main %}
@@ -10,7 +10,8 @@
         <!--<ul>-->
         <table class="center">
 
-        {% for item in videos %}
+        {% for item in videos | sort(attribute='6', reverse = True) %}
+
             <tr>
 
 
@@ -23,7 +24,7 @@
                     <li>{{ item.1 }}</li>
                     <a href="https://youtu.be/{{ item.0 }}"><li>youtu.be/{{ item.0 }}</li></a>
                     <li>{{ item.2 }}</li>
-                    <li>{{ item.5 }}</li>
+                    <li>{{ item.6 }}</li>
 
                 </td>
 

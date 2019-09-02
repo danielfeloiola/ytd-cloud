@@ -1,6 +1,7 @@
 # IMPORT STATEMENTS (DUH!)
 import csv
 import os
+from collections import Counter
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
@@ -226,18 +227,34 @@ def resultados():
 
     # cria uma lista para armazenar dados
     videos = []
+    contador = Counter()
 
     # abre o arquivo e le os dados
     with open('static/nodes.csv', 'r') as csvfile2:
-        reader2 = csv.reader(csvfile2, delimiter=',') # quotechar='|'
+        reader2 = csv.reader(csvfile2, delimiter=',')
+
         for row2 in reader2:
             if row2[0] != 'video_id':
                 if row2[0] != 'query result':
                     line2 = [row2[0], row2[1], row2[2], row2[4], row2[5], row2[6]]
                     videos.append(line2)
 
+    for entrada in videos:
+        contador[entrada[0]] += 1
+
+    lista_unica = []
+    lista_final = []
+
+    for video in videos:
+        if video[0] not in lista_unica:
+            n_video = video
+            n_video.append(contador[video[0]])
+            lista_final.append(n_video)
+            lista_unica.append(video[0])
+
+
     # render the page
-    return render_template("resultados.html", videos=videos)
+    return render_template("resultados.html", videos=lista_final)
 
 @app.route("/config", methods=["GET", "POST"])
 def config():
@@ -280,10 +297,7 @@ def config():
         # Ao apagar os dados da tabela
         elif radio == "delete":
 
-            ####################################################################
-            #              Apaga os dados das tabelas e dicionario             #
-            ####################################################################
-
+            # Apaga os dados das tabelas e dicionario
             from api import dict
             dict.clear()
 
