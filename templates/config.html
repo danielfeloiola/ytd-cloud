@@ -6,21 +6,42 @@
 
 {% block main %}
 
-    {{ msg }}
+    {% if msg %}
+        <div class="alert alert-success" role="alert">
+            {{ msg }}
+        </div>
+    {% endif %}
+
     <hr>
     <form action="/config" method="post">
         <div class="form-group">
             <input type="radio" name="radio" value="mr">
+
                 <!-- Muda a quantidade de respostas-->
-                <input autocomplete="off" autofocus class="form-control" name="maxresults" placeholder="Max Results (1-20)" type="number"><br><br>
+                <input autocomplete="off" class="form-control" name="maxresults" placeholder="Max Results (1-20)" type="number"><br><br>
                 <button class="btn btn-primary" type="submit">Mudar Max Res</button>
+
             <br>
             <hr>
+
             <input type="radio" name="radio" value="api">
+
                 <!-- Muda a chave da API -->
-                <input autocomplete="off" autofocus class="form-control" name="new-api" placeholder="Nova chave da API" type="text"><br><br>
+                <input autocomplete="off" class="form-control" name="newapi" placeholder="Nova chave da API" type="text"><br><br>
                 <button class="btn btn-primary" type="submit">Mudar chave da API</button>
+
             <br>
+            <hr>
+
+
+            <input type="radio" name="radio" value="delete">
+
+                <!-- Apaga os dados-->
+                <button id= "delete"class="btn btn-primary" type="submit">Apagar dados</button>
+                <br>
+                <br>
+                <p>Cuidado: os dados da tabela serão apagados pernamentemente</p>
+
             <hr>
         </div>
     </form>

@@ -6,7 +6,13 @@
 
 {% block main %}
 
-    {{ msg }}
+    {% if msg %}
+        <div class="alert alert-danger" role="alert">
+            {{ msg }}
+        </div>
+    {% endif %}
+
+
     <form action="/coletar" method="post">
         <div class="form-group">
             <input autocomplete="off" autofocus class="form-control" name="query" placeholder="Query" type="text"><br><br>

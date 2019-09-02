@@ -9,7 +9,7 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
 from helpers import apology, login_required
-from api import search
+from api import search, query_search
 
 
 # configuracoes da API
@@ -108,49 +108,105 @@ def coletar():
         # lista final a ser retornada
         final_video_list = []
 
+        # se nao for introduzido um termo ou video_id - retorna um erro
+        if query == '':
+            # caso a profundidade nao seja informada
+            return render_template("coletar.html", msg="verifique o termo buscado")
+
         # varia de acordo com a profundidade
         if profundidade == '1':
 
-            videos = search('query', query)
-            final_video_list += videos
+            if seed == True:
+
+                videos = search('related', query)
+                final_video_list += videos
+
+            elif seed == None:
+
+                videos = search('query', query)
+                final_video_list += videos
+                query_search(query)
 
         elif profundidade == '2':
 
-            # Faz um query search e coloca os resultados na lista
-            videos = search('query', query)
-            final_video_list += videos
+            # Faz a busca e coloca os resultados na lista
+            if seed == True:
+                # level 1
+                videos = search('related', query)
+                final_video_list += videos
 
-            # itera por cada resultado e faz uma busca de relacionados para cada
-            for video in videos:
-                videos2 = search('related', video[0])
-                final_video_list += videos2
+                # itera por cada resultado e faz uma busca de relacionados para cada
+                for video in videos:
+                    # level 2
+                    videos2 = search('related', video[0])
+                    final_video_list += videos2
+
+            elif seed == None:
+                # level 1
+                videos = search('query', query)
+                final_video_list += videos
+                query_search(query)
+
+                # itera por cada resultado e faz uma busca de relacionados para cada
+                for video in videos:
+                    # level 2
+                    videos2 = search('related', video[0])
+                    final_video_list += videos2
+
 
         elif profundidade == '3':
 
             level_2 = []
 
-            # Faz um query search e coloca os resultados na lista
-            videos = search('query', query)
-            final_video_list += videos
+            # Faz a busca e coloca os resultados na lista
+            if seed == True:
+                # level 1
+                videos = search('related', query)
+                final_video_list += videos
 
-            # itera por cada resultado e faz uma busca de relacionados para cada
-            for video in videos:
-                videos2 = search('related', video[0])
-                final_video_list += videos2
-                level_2 += videos2
+                # itera por cada resultado e faz uma busca de relacionados para cada
+                for video in videos:
+                    # level 2
+                    videos2 = search('related', video[0])
+                    final_video_list += videos2
+                    level_2 += videos2
 
-            # itera por cada resultado e faz uma busca de relacionados para
-            # cada um mais uma vez
-            for vd in level_2:
-                videos3 = search('related', vd[0])
-                final_video_list += videos3
+                    # itera por cada resultado e faz uma busca de relacionados para
+                    # cada um mais uma vez
+                    for vd in level_2:
+                        # level 3
+                        videos3 = search('related', vd[0])
+                        final_video_list += videos3
+
+            elif seed == None:
+                # level 1
+                videos = search('query', query)
+                final_video_list += videos
+                query_search(query)
+
+                # itera por cada resultado e faz uma busca de relacionados para cada
+                for video in videos:
+                    # Level 2
+                    videos2 = search('related', video[0])
+                    final_video_list += videos2
+                    level_2 += videos2
+
+                    # itera por cada resultado e faz uma busca de relacionados para
+                    # cada um mais uma vez
+                    for vd in level_2:
+                        # level 3
+                        videos3 = search('related', vd[0])
+                        final_video_list += videos3
+
 
         else:
+            # caso a profundidade nao seja informada
             return render_template("coletar.html", msg="verifique a profundidade")
 
 
         # renderiza a pagina
-        return render_template("results.html", videos=final_video_list)
+        return redirect("/resultados")
+        #return render_template("results.html", videos=final_video_list)
 
 
 @app.route("/analisar")
@@ -162,6 +218,27 @@ def analisar():
     # render the page
     return render_template("analisar.html")
 
+@app.route("/resultados")
+def resultados():
+    """
+    Cria uma pagina mostrando os videos coletados
+    """
+
+    # cria uma lista para armazenar dados
+    videos = []
+
+    # abre o arquivo e le os dados
+    with open('static/nodes.csv', 'r') as csvfile2:
+        reader2 = csv.reader(csvfile2, delimiter=',') # quotechar='|'
+        for row2 in reader2:
+            if row2[0] != 'video_id':
+                if row2[0] != 'query result':
+                    line2 = [row2[0], row2[1], row2[2], row2[4], row2[5], row2[6]]
+                    videos.append(line2)
+
+    # render the page
+    return render_template("resultados.html", videos=videos)
+
 @app.route("/config", methods=["GET", "POST"])
 def config():
     """
@@ -172,28 +249,70 @@ def config():
     # mostra a pagina
     if request.method == "GET":
         return render_template("config.html")
-    # se forem feitas alteracoes
+
+    # se forem feitas alteracoes nas configuracoes
     else:
-        radio = max = request.form.get("radio")
+        radio = request.form.get("radio")
+        api_field = request.form.get("newapi")
+        mr_field = request.form.get("maxresults")
 
         # para mudancas no max results
         if radio == "mr":
-            max = request.form.get("maxresults")
-            global MAX_RESULTS
-            MAX_RESULTS = max
+            if mr_field != None and mr_field != '':
+                global MAX_RESULTS
+                MAX_RESULTS = mr_field
 
-            return render_template("config.html", msg="Numero de resultados alterado")
+                return render_template("config.html", msg="Numero de resultados alterado")
+
+            else:
+                return render_template("config.html", msg="Forneça um valor para a configuração")
 
         # mudancas na chave da API
         elif radio == "api":
-            api = request.form.get("new-api")
-            global DEVELOPER_KEY
-            DEVELOPER_KEY = api
+            if api_field != None and api_field !='':
+                global DEVELOPER_KEY
+                DEVELOPER_KEY = api_field
 
-            return render_template("config.html", msg="Chave da API alterada")
+                return render_template("config.html", msg="Chave da API alterada")
+            else:
+                return render_template("config.html", msg="Forneça um valor para a configuração")
 
-        # mostrar a pagina novamente
-        #return render_template("config.html")
+        # Ao apagar os dados da tabela
+        elif radio == "delete":
+
+            ####################################################################
+            #              Apaga os dados das tabelas e dicionario             #
+            ####################################################################
+
+            from api import dict
+            dict.clear()
+
+            # cria um novo arquivo de nodes
+            with open('static/nodes.csv', 'w', newline = '', encoding = 'utf8') as csvfile1:
+                writer1 = csv.writer(csvfile1, lineterminator = '\n')
+                writer1.writerow(['video_id',
+                                  'video_name',
+                                  'channel_title',
+                                  'channel_id',
+                                  'published_at',
+                                  'thumbnail_url',
+                                  'type'
+                                  ])
+
+            # cria um novo arquivo de edges
+            with open('static/edges.csv', 'w', newline = '', encoding = 'utf8') as csvfile2:
+                writer2 = csv.writer(csvfile2, lineterminator = '\n')
+                writer2.writerow(['source',
+                                  'source_name',
+                                  'target',
+                                  'target_name'
+                                  ])
+
+            return render_template("config.html", msg="Dados da tabela apagados")
+
+        # Caso encontre um submit sem nenhum campo selecionado
+        elif radio == None:
+            return render_template("config.html", msg="Selecione um campo para alterar")
 
 
 @app.route("/results/<id>", methods=["GET", "POST"])
@@ -225,7 +344,7 @@ def get_nodes():
     with open('static/nodes.csv', 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            if row[0] != 'related_video_id':
+            if row[0] != 'video_id':
                 if row[0] not in node_check:
                     line = [row[0], row[1]]
                     nodes.append(line)
@@ -255,7 +374,6 @@ def get_edges():
 
     # emite os dados para o socket-io
     emit('get_edges', edges)
-
 
 
 def errorhandler(e):

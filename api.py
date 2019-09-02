@@ -3,7 +3,6 @@ from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
-
 # Bibliotecas
 import os
 import csv
@@ -11,7 +10,6 @@ import csv
 # cria um dict para armazenamento
 # se um video já foi pedido para a api, ele verifica antes o dict para evitar
 # um request do mesmo vídeo
-# precisa haver uma função para limpar o dicionario <<< ######################################
 dict = {}
 
 # armazena video ids e os nomes
@@ -49,14 +47,12 @@ def search(mode, query):
             # busca no dicionario
             search_response = dict[query]
 
-            # debug
-            #print("THIS WAS A DICT QUERY")
-            #print(search_response)
-
     # se for uma busca por um termo, faz a busca - nao passa pelo dicionario
     elif mode == "query":
-        search_response = youtube.search().list(q=query, part="id,snippet").execute()
-
+        search_response = youtube.search().list(q=query,
+                                                part="id,snippet",
+                                                maxResults=MAX_RESULTS,
+                                                type='video').execute()
 
     # itera pelos resultados da busca e adiciona a lista
     for search_result in search_response.get("items", []):
@@ -114,3 +110,24 @@ def search(mode, query):
 
     # retorna a lista de videos
     return videos
+
+
+def query_search(query):
+    '''
+    coloca o termo buscado no csv de nodes.
+    Permite comparar quais foram as recomendacoes feitas pela busca,
+    em comparacao com os videos relacionados
+    '''
+
+    node = ['query result',
+            'query: ' + query,
+            'None',
+            'None',
+            'None',
+            'None',
+            "Query result"
+            ]
+
+    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
+        writer1 = csv.writer(csvfile1, lineterminator = '\n')
+        writer1.writerow(node)

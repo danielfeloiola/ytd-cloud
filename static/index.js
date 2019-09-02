@@ -90,11 +90,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // Faz o sigma criar o grafo
         s.refresh();
 
+
+        // noverlap
+        // Configura o noverlap layout
+        var noverlapListener = s.configNoverlap({
+            nodeMargin: 0.1,
+            scaleNodes: 1.05,
+            gridSize: 75,
+            easing: 'quadraticInOut', // transicao da animacao
+            duration: 1000   // duracao da animacao
+        });
+
+
+        // Bind
+        noverlapListener.bind('start stop interpolate', function(e) {
+            console.log(e.type);
+            if(e.type === 'start') {
+                console.time('noverlap');
+            }
+            if(e.type === 'interpolate') {
+                console.timeEnd('noverlap');
+            }
+        });
+
         // inicia o algoritmo de espacialização
         s.startForceAtlas2({worker: true, barnesHutOptimize: false});
 
         // para o algoritmo apos 10s
-        window.setTimeout(function() {s.killForceAtlas2()}, 10000);
+        window.setTimeout(function() {s.killForceAtlas2(), s.startNoverlap()}, 10000 );
+
 
     });
 
