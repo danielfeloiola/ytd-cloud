@@ -13,36 +13,28 @@
         {% for item in videos | sort(attribute='6', reverse = True) %}
 
             <tr>
-
+                <td>
+                    <!-- Contador de aparicoes -->
+                    <li>{{ item.6 }}x</li>
+                </td>
 
                 <td>
+                    <!-- thumbnail -->
                     <img src="{{ item.4 }}" alt="thumbnail">
                 </td>
 
                 <td>
-
+                    <!-- informacoes do video -->
                     <li>{{ item.1 }}</li>
                     <a href="https://youtu.be/{{ item.0 }}"><li>youtu.be/{{ item.0 }}</li></a>
                     <li>{{ item.2 }}</li>
-                    <li>{{ item.6 }}</li>
-
+                    <li>{{ item.5 }}</li>
                 </td>
-
-                <td>
-                    <!-- add a next button here -->
-                    <a href="/results/{{ item.0 }}" style="color: grey">
-                        <span class="glyphicon glyphicon-chevron-right">next</span>
-                    </a>
-                </td>
-
             </tr>
 
         {% endfor %}
 
         </table>
-
-    <!--    </ul> -->
-
 
     </div>
 {% endblock %}
