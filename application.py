@@ -489,16 +489,17 @@ def get_edges():
 
 def search(mode, query, savemode):
 
-    print("Query: " + query)
-    print("Mode: " + mode)
-    print("savemode: " + str(savemode))
+    # DEBUG
+    #print("Query: " + query)
+    #print("Mode: " + mode)
+    #print("savemode: " + str(savemode))
 
     # importa a chave da api
     #from application import MAX_RESULTS, DEVELOPER_KEY
     #from application import session[max_results], session[developer_key]
 
     # configura a API
-    print(session)
+    #print(session)
 
     #youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=session['developer_key'])
