@@ -3,8 +3,9 @@ import csv
 import os
 from collections import Counter
 from cs50 import SQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -45,16 +46,21 @@ app = Flask(__name__)
 # socketio
 socketio = SocketIO(app)
 
-# Templates auto-reload
+# auto-reload
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-# Ensure responses aren't cached
+# response cache
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
+# Configura o database SQL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
 
 
 # Configura a session
@@ -72,7 +78,22 @@ app.config['SECRET_KEY'] = 'pleasechangethesecretkey'
 #DEVELOPER_KEY = ""
 #SAVE_MODE = True
 
+# Cria uma class para os usuarios
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    hash = db.Column(db.String(80), unique=True, nullable=False)
+
+
+    def __init__(self, username, hashp, c_key, c_secret, a_token, a_secret):
+        self.username = username
+        self.hash = hash
+
+    def check_password(self, password):
+        return check_password_hash(self.hashp, password)
+
+        
 
 @app.route("/", methods=["GET", "POST"])
 def index():
