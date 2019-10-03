@@ -233,13 +233,13 @@ def coletar():
             #if radio == 'seed'
             if selector == 'seed':
 
-                videos = search('related', query, session['save_mode'])
+                videos = search('related', query, True)
                 final_video_list += videos
 
             #elif radio == 'query'
             elif selector == 'query':
 
-                videos = search('query', query, session['save_mode'])
+                videos = search('query', query, True)
                 final_video_list += videos
 
         elif profundidade == '2':
@@ -247,24 +247,25 @@ def coletar():
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed':
                 # level 1
-                videos = search('related', query, session['save_mode'])
+                videos = search('related', query, True)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
                 for video in videos:
                     # level 2
-                    videos2 = search('related', video[0], session['save_mode'])
+                    videos2 = search('related', video[0], True)
                     final_video_list += videos2
 
             elif selector == 'query':
                 # level 1
-                videos = search('query', query, session['save_mode'])
+                print(session)
+                videos = search('query', query, True)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
                 for video in videos:
                     # level 2
-                    videos2 = search('related', video[0], session['save_mode'])
+                    videos2 = search('related', video[0], True)
                     final_video_list += videos2
 
 
@@ -275,13 +276,13 @@ def coletar():
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed':
                 # level 1
-                videos = search('related', query, session['save_mode'])
+                videos = search('related', query, True)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
                 for video in videos:
                     # level 2
-                    videos2 = search('related', video[0], session['save_mode'])
+                    videos2 = search('related', video[0], True)
                     final_video_list += videos2
                     level_2 += videos2
 
@@ -289,19 +290,19 @@ def coletar():
                     # cada um mais uma vez
                     for vd in level_2:
                         # level 3
-                        videos3 = search('related', vd[0], session['save_mode'])
+                        videos3 = search('related', vd[0], True)
                         final_video_list += videos3
 
             elif selector == 'query':
                 # level 1
-                videos = search('query', query, session['save_mode'])
+                videos = search('query', query, True)
                 final_video_list += videos
                 #query_search(query)
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
                 for video in videos:
                     # Level 2
-                    videos2 = search('related', video[0], session['save_mode'])
+                    videos2 = search('related', video[0], True)
                     final_video_list += videos2
                     level_2 += videos2
 
@@ -309,7 +310,7 @@ def coletar():
                     # cada um mais uma vez
                     for vd in level_2:
                         # level 3
-                        videos3 = search('related', vd[0], session['save_mode'])
+                        videos3 = search('related', vd[0], True)
                         final_video_list += videos3
 
 
