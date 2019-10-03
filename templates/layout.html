@@ -41,6 +41,56 @@
 
             <div class="collapse navbar-collapse" id="navbar">
 
+
+                <!-- -->
+
+                {% if session.user_id %}
+                    <ul class="navbar-nav mr-auto mt-2">
+                        <li class="nav-item"><a class="nav-link" href="/navegar">Navegar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/coletar">Coletar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/resultados">Resultados</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/analisar">Analisar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/tabelas">Tabelas</a></li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto mt-2">
+                        <li class="nav-link">Olá, {{ session["username"] }}</li>
+                        <li class="nav-item"><a class="nav-link" href="/senha">Mudar Senha</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+
+                        <!--<div class="dropdown">
+                            <li class="nav-item">
+                                <button onclick="myFunction()" class="dropbtn">Olá, {{ session["username"] }}</button>
+                                <button onclick="myFunction()" class="dropbtn"> Olá, {{ session["username"] }}</button>
+                            </li>
+                                <div id="myDropdown" class="dropdown-content" >
+
+                                    <li class="nav-item"><a class="nav-link" href="/changeapi">Mudar API</a></li>
+
+                                </div>
+                        </div>-->
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ml-auto mt-2">
+                        <li class="nav-item"><a class="nav-link" href="/registrar">Registrar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
+                    </ul>
+                {% endif %}
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <!--
+
                 <ul class="navbar-nav mr-auto mt-2">
                     <li class="nav-item"><a class="nav-link" href="/navegar">Navegar</a></li>
                     <li class="nav-item"><a class="nav-link" href="/coletar">Coletar</a></li>
@@ -48,6 +98,7 @@
                     <li class="nav-item"><a class="nav-link" href="/analisar">Analisar</a></li>
                     <li class="nav-item"><a class="nav-link" href="/tabelas">Tabelas</a></li>
                 </ul>
+                -->
 
                 <!--
                 <ul class="navbar-nav ml-auto mt-2">

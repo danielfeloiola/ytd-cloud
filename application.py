@@ -11,7 +11,6 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
 from helpers import apology, login_required
-#from api import search #, query_search
 
 # API do Google
 from apiclient.discovery import build
@@ -19,7 +18,6 @@ from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 # VARIAVEIS GLOBAIS
-# O DICT E VIDEO_NAMES N PRECISARIAM SER GLOBAIS - ALTERAR!
 
 # cria um dict para armazenamento
 # se um video já foi pedido para a api, ele verifica antes o dict para evitar
@@ -40,7 +38,7 @@ YOUTUBE_API_VERSION = "v3"
 #SAVE_MODE = True
 
 
-# Configura a application
+# Configura a aplicacao
 app = Flask(__name__)
 
 # socketio
@@ -86,14 +84,14 @@ class User(db.Model):
     hash = db.Column(db.String(80), unique=True, nullable=False)
 
 
-    def __init__(self, username, hashp, c_key, c_secret, a_token, a_secret):
+    def __init__(self, username, hash):
         self.username = username
         self.hash = hash
 
     def check_password(self, password):
-        return check_password_hash(self.hashp, password)
+        return check_password_hash(self.hash, password)
 
-        
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -121,6 +119,153 @@ def index():
 
         else:
             return render_template("index.html", msg="Forneça chave da API")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            return apology("usuário vazio", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("senha vazia", 403)
+
+        # query database to check if user exists
+        user = User.query.filter_by(username=request.form.get("username")).first()
+        password_check = user.check_password(request.form.get("password"))
+
+        # if the passwords match, do the login
+        if password_check == True:
+            session["user_id"] = user.id
+            session["username"] = user.username
+            #session["user_id"] = user.username
+        else:
+            return apology("usuário ou senha inválida", 403)
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
+
+@app.route("/registrar", methods=["GET", "POST"])
+def registrar():
+    """Register user"""
+
+     # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            return apology("crie um nome de usuário", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("crie uma senha", 403)
+
+         # Ensure passwords match
+        if request.form.get("password") != request.form.get("confirmation"):
+            return apology("Senhas diferentes", 403)
+
+        # encrypt passwprd
+        hash_password = generate_password_hash(request.form.get("password"))
+
+        # set username
+        username = request.form.get("username")
+
+        # query to check if the username already exists
+        username_query = User.query.filter_by(username=request.form.get("username")).first()
+
+        # if its a unique udername add user to database, if its not generate error
+        if not username_query:
+            new_user = User(username, hash_password)
+            db.session.add(new_user)
+            db.session.commit()
+        else:
+            return apology("usuario ja existe", 403)
+
+        # query database to check if user exists
+        #user = User.query.filter_by(username=request.form.get("username")).first()
+        #password_check = user.check_password(request.form.get("password"))
+
+        # if the passwords match, do the login
+        #if password_check == True:
+        session["user_id"] = user.id
+        session["username"] = user.username
+        #else:
+        #    return apology("Usuário ou senha inválida", 403)
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # if the user is looking for the login page
+    else:
+        return render_template("registrar.html")
+
+
+@app.route("/senha", methods=["GET", "POST"])
+@login_required
+def senha():
+    """Muda a senha"""
+
+    if request.method == "POST":
+
+        # Get the passwords
+        current_password = request.form.get("current-password")
+        new_password = request.form.get("new-password")
+        new_password_check = request.form.get("new-password-check")
+
+        # check if user has provided the password
+        if not request.form.get("new-password"):
+            return apology("Coloque uma senha nova", 403)
+
+        # check if new passwords match
+        if new_password != new_password_check:
+            return apology("Senhas diferentes", 403)
+
+        # find the user in the database
+        user = User.query.filter_by(id=session["user_id"]).first()
+        check_pw = user.check_password(request.form.get("current-password"))
+
+        # if the current password provided is correct
+        if check_pw == True:
+
+            # encrypt new pw
+            user.hashp = generate_password_hash(request.form.get("new-password"))
+
+            # add to database
+            db.session.add(user)
+            db.session.commit()
+
+        return redirect("/")
+
+    # if the user is looking for the form
+    else:
+        return render_template("senha.html")
 
 
 @app.route("/navegar", methods=["GET", "POST"])
@@ -364,8 +509,11 @@ def resultados():
     videos = []
     contador = Counter()
 
+    #nome do arquivo
+    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
     # abre o arquivo e le os dados
-    with open('static/nodes.csv', 'r') as csvfile2:
+    with open(nome_nodes, 'r') as csvfile2:
         reader2 = csv.reader(csvfile2, delimiter=',')
 
         for row2 in reader2:
@@ -417,8 +565,12 @@ def tabelas():
             #from api import dict
             DICT.clear()
 
+            # configura os nomes dos arquivos
+            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+            nome_edges = 'static/' + session['username'] + '-edges.csv'
+
             # cria um novo arquivo de nodes
-            with open('static/nodes.csv', 'w', newline = '', encoding = 'utf8') as csvfile1:
+            with open(nome_nodes, 'w', newline = '', encoding = 'utf8') as csvfile1:
                 writer1 = csv.writer(csvfile1, lineterminator = '\n')
                 writer1.writerow(['video_id',
                                   'video_name',
@@ -430,7 +582,7 @@ def tabelas():
                                   ])
 
             # cria um novo arquivo de edges
-            with open('static/edges.csv', 'w', newline = '', encoding = 'utf8') as csvfile2:
+            with open(nome_edges, 'w', newline = '', encoding = 'utf8') as csvfile2:
                 writer2 = csv.writer(csvfile2, lineterminator = '\n')
                 writer2.writerow(['source',
                                   'source_name',
@@ -470,8 +622,11 @@ def get_nodes():
     # cria uma lista para checagem de nodes duplicados
     node_check = []
 
+    # nome do arquivo
+    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
     # abre o arquivo e le os dados
-    with open('static/nodes.csv', 'r') as csvfile:
+    with open(nome_nodes, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             if row[0] != 'video_id':
@@ -494,8 +649,11 @@ def get_edges():
     # cria uma lista para armazenar dados
     edges = []
 
+    # nome do arquivo de edges
+    nome_edges = 'static/' + session['username'] + '-edges.csv'
+
     # abre o arquivo e le os dados
-    with open('static/edges.csv', 'r') as csvfile2:
+    with open(nome_edges, 'r') as csvfile2:
         reader2 = csv.reader(csvfile2, delimiter=',') # quotechar='|'
         for row2 in reader2:
             if row2[0] != 'source':
@@ -607,19 +765,22 @@ def search(mode, query, savemode):
             # verifica se o usuário prefere se os dados sejam salvos
             if savemode == True:
 
+                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+                nome_edges = 'static/' + session['username'] + '-edges.csv'
+
                 if mode == 'related':
                     # adiciona o node a tabela de nodes
-                    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
+                    with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
                         writer1 = csv.writer(csvfile1, lineterminator = '\n')
                         writer1.writerow(node)
 
                     # adiciona o edge a tabela de edges
-                    with open('static/edges.csv', 'a', newline = '', encoding = 'utf8') as csvfile2:
+                    with open(nome_edges, 'a', newline = '', encoding = 'utf8') as csvfile2:
                         writer2 = csv.writer(csvfile2, lineterminator = '\n')
                         writer2.writerow(edge)
 
                 if mode == 'query':
-                    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
+                    with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
                         writer1 = csv.writer(csvfile1, lineterminator = '\n')
                         writer1.writerow(node)
 
