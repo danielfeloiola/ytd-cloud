@@ -90,6 +90,47 @@ footer
     bottom:10px;
 
 }
+
+
+.block {
+    padding: 1px;
+    display: inline-block;
+    float: left;
+    width: 49%;
+}
+
+.block2 {
+    padding: 1px;
+    display: inline-block;
+    float: left;
+    width: 49%;
+}
+
+
+@media (max-width: 50em) {
+
+    .block2 {
+
+        display:none;
+    }
+    .block {
+    padding: 1px;
+    display: inline-block;
+    float: left;
+    width: 85%;
+
+
+}
+
+
+}
+
+img {
+    max-width:90%
+
+}
+
+
 /*
 ul{
     align-items: center;

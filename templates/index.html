@@ -6,16 +6,39 @@
 
 {% block main %}
 
-<h2>Insert here a description for the app</h2>
-<!--
-    <form action="/" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="query" placeholder="Query" type="text">
-        </div>
+{% if msg %}
+    <div class="alert alert-success" role="alert">
+        {{ msg }}
+    </div>
+{% endif %}
 
-        <button class="btn btn-primary" type="submit">Pesquisar</button>
-    </form>
--->
+
+<div class="container" style="width:100%;">
+    <div class="block2">
+        <a href="https://www.youtube.com/watch?v=AqR1KBhVvL8"><img class="index-img"src="https://target.scene7.com/is/image/Target/GUEST_7f8b0d5c-5ff1-49f5-9996-e2471622b408?wid=488&hei=488&fmt=pjpeg" /></a>
+    </div>
+
+    <div class="block">
+
+        <br>
+        <p style="text-align: left">O youtube_data_app é uma ferramenta para coleta e análise de dados do YouTube. </p>
+        <p style="text-align: left">É possível fazer uma coleta de dados a partir de um vídeo ou de um termo de busca. Os dados coletados podem ser visualizados em forma de lista ou de grafo. Também é possível fazer o download das tabelas.</p>
+        <p style="text-align: left">O modo de coleta salva todos os dados de todos os vídes recomendados, enquando o de navegação coleta apenas o dos vídeos selecionados</p>
+        <p style="text-align: left">Para utilizar entre com a sua chave da API abaixo. Para criar uma siga o tutorial <a href="https://developers.google.com/youtube/registering_an_application?hl=pt-br">aqui</a></p>
+
+        <!-- Configura a chave da API -->
+        <form action="/" method="post">
+            <input type="radio" name="mode" value="nav">Navegar<br>
+            <input type="radio" name="mode" value="col">Coletar<br>
+            <br>
+            <input autocomplete="off" class="form-control" name="newapi" placeholder="Chave da API" type="text"><br><br>
+            <button class="btn btn-primary" type="submit">Próximo</button>
+        </form>
+
+    </div>
+
+</div>
+
     <footer class="small text-center text-muted" style="margin-right: 30%; margin-left: 30%;">
         Clique <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">aqui</a> para resolver o aquecimento global.
     </footer>

@@ -6,23 +6,18 @@
 
 {% block main %}
     <div id="main">
-
         <!--<ul>-->
         <table class="center">
-
         {% for item in videos | sort(attribute='6', reverse = True) %}
-
             <tr>
                 <td>
                     <!-- Contador de aparicoes -->
                     <li>{{ item.6 }}x</li>
                 </td>
-
                 <td>
                     <!-- thumbnail -->
                     <img src="{{ item.4 }}" alt="thumbnail">
                 </td>
-
                 <td>
                     <!-- informacoes do video -->
                     <li>{{ item.1 }}</li>
@@ -31,10 +26,7 @@
                     <li>{{ item.5 }}</li>
                 </td>
             </tr>
-
         {% endfor %}
-
         </table>
-
     </div>
 {% endblock %}

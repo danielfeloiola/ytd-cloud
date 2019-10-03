@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var noverlapListener = s.configNoverlap({
             nodeMargin: 0.1,
             scaleNodes: 1.05,
-            gridSize: 75,
+            gridSize: 750,
             easing: 'quadraticInOut', // transicao da animacao
             duration: 1000   // duracao da animacao
         });

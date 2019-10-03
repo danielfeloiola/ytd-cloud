@@ -15,15 +15,24 @@ dict = {}
 # armazena video ids e os nomes
 video_names = {}
 
-def search(mode, query):
+# Para a configuração da API
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+
+def search(mode, query, savemode):
+
+    print("Query: " + query)
+    print("Mode: " + mode)
+    print("savemode: " + str(savemode))
 
     # importa a chave da api
-    from application import MAX_RESULTS, DEVELOPER_KEY
+    #from application import MAX_RESULTS, DEVELOPER_KEY
+    from application import session[max_results], session[developer_key]
 
     # configura a API
-    YOUTUBE_API_SERVICE_NAME = "youtube"
-    YOUTUBE_API_VERSION = "v3"
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
+
+    #youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=session[developer_key])
 
     # lista com a resposta da api que será retornada
     videos = []
@@ -60,14 +69,25 @@ def search(mode, query):
         # usa apenas os vídeos recomendados, ignora canais e playlists (por enquanto)
         if search_result["id"]["kind"] == "youtube#video":
 
-            #cria um node
-            node = [search_result["id"]["videoId"],
-                    search_result["snippet"]["title"],
-                    search_result["snippet"]["channelTitle"],
-                    search_result["snippet"]["channelId"],
-                    search_result["snippet"]["publishedAt"],
-                    search_result["snippet"]["thumbnails"]["default"]["url"],
-                    "video"]
+            if mode == 'related':
+                #cria um node
+                node = [search_result["id"]["videoId"],
+                        search_result["snippet"]["title"],
+                        search_result["snippet"]["channelTitle"],
+                        search_result["snippet"]["channelId"],
+                        search_result["snippet"]["publishedAt"],
+                        search_result["snippet"]["thumbnails"]["default"]["url"],
+                        "video relacionado"]
+
+            elif mode == 'query':
+                #cria um node
+                node = [search_result["id"]["videoId"],
+                        search_result["snippet"]["title"],
+                        search_result["snippet"]["channelTitle"],
+                        search_result["snippet"]["channelId"],
+                        search_result["snippet"]["publishedAt"],
+                        search_result["snippet"]["thumbnails"]["default"]["url"],
+                        "resultado de busca"]
 
             # adiciona o node a lista de videos
             videos.append(node)
@@ -84,23 +104,32 @@ def search(mode, query):
                         search_result["id"]["videoId"],
                         search_result["snippet"]["title"]]
             # se for uma busca por termo, coloca o termo na tabela para referencia
+            '''
             elif mode == 'query':
                 # cria um edge
                 edge = ['query result',
                         'query: ' + query,
                         search_result["id"]["videoId"],
                         search_result["snippet"]["title"]]
+            '''
+            # verifica se o usuário prefere se os dados sejam salvos
+            if savemode == True:
 
+                if mode == 'related':
+                    # adiciona o node a tabela de nodes
+                    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
+                        writer1 = csv.writer(csvfile1, lineterminator = '\n')
+                        writer1.writerow(node)
 
-            # adiciona o node a tabela de nodes
-            with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
-                writer1 = csv.writer(csvfile1, lineterminator = '\n')
-                writer1.writerow(node)
+                    # adiciona o edge a tabela de edges
+                    with open('static/edges.csv', 'a', newline = '', encoding = 'utf8') as csvfile2:
+                        writer2 = csv.writer(csvfile2, lineterminator = '\n')
+                        writer2.writerow(edge)
 
-            # adiciona o edge a tabela de edges
-            with open('static/edges.csv', 'a', newline = '', encoding = 'utf8') as csvfile2:
-                writer2 = csv.writer(csvfile2, lineterminator = '\n')
-                writer2.writerow(edge)
+                if mode == 'query':
+                    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
+                        writer1 = csv.writer(csvfile1, lineterminator = '\n')
+                        writer1.writerow(node)
 
     # adiciona o video ao dict para evitar uma busca duplicada na API caso o videos
     # seja recomendado pela api mais uma vez
@@ -110,24 +139,3 @@ def search(mode, query):
 
     # retorna a lista de videos
     return videos
-
-
-def query_search(query):
-    '''
-    coloca o termo buscado no csv de nodes.
-    Permite comparar quais foram as recomendacoes feitas pela busca,
-    em comparacao com os videos relacionados
-    '''
-
-    node = ['query result',
-            'query: ' + query,
-            'None',
-            'None',
-            'None',
-            'None',
-            "Query result"
-            ]
-
-    with open('static/nodes.csv', 'a', newline = '', encoding = 'utf8') as csvfile1:
-        writer1 = csv.writer(csvfile1, lineterminator = '\n')
-        writer1.writerow(node)
