@@ -12,22 +12,13 @@
         </div>
     {% endif %}
 
-    <hr>
-    <form action="/tabelas" method="post">
-        <a class="nav-link" href="{{ url_for('static', filename='nodes.csv') }}" download> Nós </a>
-        <a class="nav-link" href="{{ url_for('static', filename='edges.csv') }}" download> Arestas </a>
-<br>
-        <input type="radio" name="radio" value="delete">
 
-            <!-- Apaga os dados-->
+    <a class="nav-link" href="{{ url_for('static', filename='nodes.csv') }}" download> Nós </a>
+    <a class="nav-link" href="{{ url_for('static', filename='edges.csv') }}" download> Arestas </a>
+    <br>
 
-            <button id= "delete"class="btn btn-primary" type="submit">Apagar dados</button>
-            <br>
-            <br>
-            <p>Cuidado: os dados da tabela serão apagados pernamentemente</p>
+    <a class="nav-link" href="/confirma"> Apagar dados </a>
 
-        <hr>
-    </form>
 
     <footer class="small text-center text-muted" style="align: center">
         Código disponível no <a href="https://github.com/">GitHub</a>.

@@ -539,62 +539,66 @@ def resultados():
     # render the page
     return render_template("resultados.html", videos=lista_final)
 
-@app.route("/tabelas", methods=["GET", "POST"])
+@app.route("/tabelas")
 def tabelas():
     """
-    Renderiza uma página de configurações
-    Post: permite alterar a chave da API e o maxresults
+    Renderiza uma página para baixar as tabelas
     """
 
     # mostra a pagina
-    if request.method == "GET":
-        return render_template("tabelas.html")
+    #if request.method == "GET":
+    return render_template("tabelas.html")
+
+
+@app.route("/confirma")
+def confirma():
+    """
+    Confirma se o susario que apagar os dados
+    """
+
+    # mostra a pagina
+    #if request.method == "GET":
+    return render_template("confirma.html")
+
+
+
+@app.route("/apagar")
+def apagar():
 
     # se forem feitas alteracoes nas configuracoes
-    else:
-        radio = request.form.get("radio")
-        #api_field = request.form.get("newapi")
-        #mr_field = request.form.get("maxresults")
 
 
+    # Apaga os dados das tabelas e dicionario
+    #from api import dict
+    DICT.clear()
 
-        # Ao apagar os dados da tabela
-        if radio == "delete":
+    # configura os nomes dos arquivos
+    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+    nome_edges = 'static/' + session['username'] + '-edges.csv'
 
-            # Apaga os dados das tabelas e dicionario
-            #from api import dict
-            DICT.clear()
+    # cria um novo arquivo de nodes
+    with open(nome_nodes, 'w', newline = '', encoding = 'utf8') as csvfile1:
+        writer1 = csv.writer(csvfile1, lineterminator = '\n')
+        writer1.writerow(['video_id',
+                          'video_name',
+                          'channel_title',
+                          'channel_id',
+                          'published_at',
+                          'thumbnail_url',
+                          'type'
+                          ])
 
-            # configura os nomes dos arquivos
-            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-            nome_edges = 'static/' + session['username'] + '-edges.csv'
+    # cria um novo arquivo de edges
+    with open(nome_edges, 'w', newline = '', encoding = 'utf8') as csvfile2:
+        writer2 = csv.writer(csvfile2, lineterminator = '\n')
+        writer2.writerow(['source',
+                          'source_name',
+                          'target',
+                          'target_name'
+                          ])
 
-            # cria um novo arquivo de nodes
-            with open(nome_nodes, 'w', newline = '', encoding = 'utf8') as csvfile1:
-                writer1 = csv.writer(csvfile1, lineterminator = '\n')
-                writer1.writerow(['video_id',
-                                  'video_name',
-                                  'channel_title',
-                                  'channel_id',
-                                  'published_at',
-                                  'thumbnail_url',
-                                  'type'
-                                  ])
+    return render_template("tabelas.html", msg="Dados da tabela apagados")
 
-            # cria um novo arquivo de edges
-            with open(nome_edges, 'w', newline = '', encoding = 'utf8') as csvfile2:
-                writer2 = csv.writer(csvfile2, lineterminator = '\n')
-                writer2.writerow(['source',
-                                  'source_name',
-                                  'target',
-                                  'target_name'
-                                  ])
-
-            return render_template("tabelas.html", msg="Dados da tabela apagados")
-
-        # Caso encontre um submit sem nenhum campo selecionado
-        #elif radio == None:
-        #    return render_template("tabelas.html", msg="Selecione um campo para alterar")
 
 
 @app.route("/results/<id>", methods=["GET", "POST"])

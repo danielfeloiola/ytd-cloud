@@ -1,6 +1,6 @@
 # YouTube Data Api
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+<!--[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) -->
 
 Uma simples ferramenta para coletar e visualizar dados do YouTube.
 Após instalar no Heroku, vá em Configurações e coloque a sua chave da API do Google.
