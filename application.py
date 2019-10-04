@@ -597,7 +597,7 @@ def apagar():
                           'target_name'
                           ])
 
-    return render_template("tabelas.html", msg="Dados da tabela apagados")
+    return render_template("tabelas.html", msg="Dados das tabelas apagados")
 
 
 
