@@ -130,6 +130,9 @@ def login():
         else:
             return apology("usuário ou senha inválida", 403)
 
+        # Roda a função apagar para criar tabelas
+        apagar()
+
         # Redireciona para a homepage
         return redirect("/")
 
@@ -145,6 +148,9 @@ def logout():
 
     # Apaga a sessao
     session.clear()
+
+    # apaga os Dados
+    apagar()
 
     # Redireciona para a pagina inicial
     return redirect("/")
@@ -191,6 +197,9 @@ def registrar():
         #  faz o login
         session["user_id"] = user.id
         session["username"] = user.username
+
+        # roda a funcao apagar para criar tabelas
+        apagar()
 
         # redireciona para a home page
         return redirect("/")
