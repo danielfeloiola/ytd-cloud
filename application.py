@@ -54,7 +54,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 # secret key
-#from key import key
 app.config['SECRET_KEY'] = os.environ['KEY']
 
 
