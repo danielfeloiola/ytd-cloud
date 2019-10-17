@@ -432,6 +432,9 @@ def resultados(id = None):
                     lista_final.append(n_video)
                     lista_unica.append(video[0])
 
+            # verifica se há dados
+            if len(lista_final) == 0:
+                return apology("Não há dados")
 
             # render the page
             return render_template("resultados.html", videos=lista_final)
@@ -508,6 +511,10 @@ def resultados(id = None):
                         # adiciona os dados a lista que ira para a pagina
                         line = [row[0], row[1], row[2], row[4], row[5], row[6]]
                         videos.append(line)
+
+        # verifica se há dados
+        if len(videos) == 0:
+            return apology("Não há dados")
 
         # renderiza a pagina
         return render_template("resultados2.html", videos = videos, profundidade = 'seeds')
