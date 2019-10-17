@@ -35,9 +35,11 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbar">
+                <!-- Menu -->
                 {% if session.user_id %}
                     <ul class="navbar-nav mr-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/navegar">Navegar</a></li>
+                        <!--<li class="nav-item"><a class="nav-link" href="/navegar">Navegar</a></li>-->
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="/coletar">Coletar</a></li>
                         <li class="nav-item"><a class="nav-link" href="/resultados">Resultados</a></li>
                         <li class="nav-item"><a class="nav-link" href="/analisar">Analisar</a></li>
@@ -55,25 +57,6 @@
                 {% endif %}
             </div>
 
-                <!--
-
-                <ul class="navbar-nav mr-auto mt-2">
-                    <li class="nav-item"><a class="nav-link" href="/navegar">Navegar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/coletar">Coletar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/resultados">Resultados</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/analisar">Analisar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/tabelas">Tabelas</a></li>
-                </ul>
-                -->
-
-                <!--
-                <ul class="navbar-nav ml-auto mt-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('static', filename='nodes.csv') }}" download> Nodes </a>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('static', filename='edges.csv') }}" download> Edges </a>
-                </ul>
-            -->
-
- 
         </nav>
 
         {% if get_flashed_messages() %}

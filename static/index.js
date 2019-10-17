@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 x: Math.random(),
                 y: Math.random(),
                 size: 3,
-                color: '#000000'
+                color: point[2]
             }
 
             // adiciona ao grafo

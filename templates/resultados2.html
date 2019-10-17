@@ -10,16 +10,17 @@
         <!--<ul>-->
         <table class="center">
             <tr>
-                <form action="/resultados" method="post">
-                    <input type="submit" name="seletor" value=" ver os seeds" />
+                <form action="/resultados" method="get">
+                    <input type="submit" value="ver dados gerais" />
+                    {{profundidade}}
                 </form>
             </tr>
 
-        {% for item in videos | sort(attribute='6', reverse = True) %}
+        {% for item in videos %}
             <tr>
                 <td>
                     <!-- Contador de aparicoes -->
-                    <li>{{ item.6 }}x</li>
+                    <li>{{ loop.index }}.</li>
                 </td>
                 <td>
                     <!-- thumbnail -->

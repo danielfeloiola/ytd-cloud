@@ -31,13 +31,6 @@ VIDEO_NAMES = {}
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-
-# configuracoes da API
-#MAX_RESULTS = 5
-#DEVELOPER_KEY = ""
-#SAVE_MODE = True
-
-
 # Configura a aplicacao
 app = Flask(__name__)
 
@@ -60,24 +53,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+# secret key
+from key import key
+app.config['SECRET_KEY'] = key
 
-# Configura a session
-#app.config["SESSION_FILE_DIR"] = mkdtemp()
-#app.config["SESSION_PERMANENT"] = False
-#app.config["SESSION_TYPE"] = "filesystem"
-app.config['SECRET_KEY'] = 'pleasechangethesecretkey'
-#Session(app)
-
-#session['max_results'] = 5
-#session['developer_key'] = ''
-#session['save_mode'] = True
-
-#MAX_RESULTS = 5
-#DEVELOPER_KEY = ""
-#SAVE_MODE = True
 
 # Cria uma class para os usuarios
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -101,106 +82,106 @@ def index():
     """
 
     if request.method == "GET":
+
+        # mostra a pagina inicial
         return render_template("index.html")
-    else:
+
+    elif request.method == "POST":
+
         #configura a api
         api_field = request.form.get("newapi")
         rdio = request.form.get("mode")
 
+        # guarda a API ou gera um erro se não houver API
         if api_field != None and api_field !='':
             session['developer_key'] = api_field
-            #global DEVELOPER_KEY
-            #DEVELOPER_KEY = api_field
-
-            if rdio == 'nav':
-                return redirect("/navegar")
-            elif rdio == "col":
-                return redirect("/coletar")
-
         else:
             return render_template("index.html", msg="Forneça chave da API")
+
+        # passa para a proxima fase
+        return redirect("/coletar")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Log user in"""
+    """Faz o log in"""
 
-    # Forget any user_id
+    # apaga dados da sessão
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
+    # Qaundo receber os dados (via POST)
     if request.method == "POST":
 
-        # Ensure username was submitted
+        # Verifica se há um nome de usuário
         if not request.form.get("username"):
             return apology("usuário vazio", 403)
 
-        # Ensure password was submitted
+        # Verifica se realmente há uma senha
         elif not request.form.get("password"):
             return apology("senha vazia", 403)
 
-        # query database to check if user exists
+        # Busca o usuario no banco de dados e verifica a senha
         user = User.query.filter_by(username=request.form.get("username")).first()
         password_check = user.check_password(request.form.get("password"))
 
-        # if the passwords match, do the login
+        # Verifica se as senhas conferem
         if password_check == True:
             session["user_id"] = user.id
             session["username"] = user.username
-            #session["user_id"] = user.username
         else:
             return apology("usuário ou senha inválida", 403)
 
-        # Redirect user to home page
+        # Redireciona para a homepage
         return redirect("/")
 
-    # User reached route via GET (as by clicking a link or via redirect)
+    # Se o usuário está procurando o formulario - GET
     else:
         return render_template("login.html")
 
 
 @app.route("/logout")
+@login_required
 def logout():
-    """Log user out"""
+    """Faz o logout"""
 
-    # Forget any user_id
+    # Apaga a sessao
     session.clear()
 
-    # Redirect user to login form
+    # Redireciona para a pagina inicial
     return redirect("/")
 
 @app.route("/registrar", methods=["GET", "POST"])
 def registrar():
     """Register user"""
 
-     # Forget any user_id
+     # limpa os dados da sessão
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
+    # Ao enviar dados via POST
     if request.method == "POST":
 
-        # Ensure username was submitted
+        # Verifica se ha um nome de usuario
         if not request.form.get("username"):
             return apology("crie um nome de usuário", 403)
 
-        # Ensure password was submitted
+        # Verifica se ha uma senha
         elif not request.form.get("password"):
             return apology("crie uma senha", 403)
 
-         # Ensure passwords match
+         # Verifica se as senhas conferem
         if request.form.get("password") != request.form.get("confirmation"):
             return apology("Senhas diferentes", 403)
 
-        # encrypt passwprd
+        # criptografia da senha
         hash_password = generate_password_hash(request.form.get("password"))
 
-        # set username
+        # configura o usrname
         username = request.form.get("username")
 
-        # query to check if the username already exists
+        # verifica se já existe um usuário com esse username no banco de dados
         username_query = User.query.filter_by(username=request.form.get("username")).first()
 
-        # if its a unique udername add user to database, if its not generate error
+        # Se for um nome unico adiciona ao banco, senao mostra o erro
         if not username_query:
             new_user = User(username, hash_password)
             db.session.add(new_user)
@@ -208,21 +189,14 @@ def registrar():
         else:
             return apology("usuario ja existe", 403)
 
-        # query database to check if user exists
-        #user = User.query.filter_by(username=request.form.get("username")).first()
-        #password_check = user.check_password(request.form.get("password"))
-
-        # if the passwords match, do the login
-        #if password_check == True:
+        #  faz o login
         session["user_id"] = user.id
         session["username"] = user.username
-        #else:
-        #    return apology("Usuário ou senha inválida", 403)
 
-        # Redirect user to home page
+        # redireciona para a home page
         return redirect("/")
 
-    # if the user is looking for the login page
+    # Se o usuário esta porcurando a pagina (via GET)
     else:
         return render_template("registrar.html")
 
@@ -234,115 +208,43 @@ def senha():
 
     if request.method == "POST":
 
-        # Get the passwords
+        # Pega as senhas
         current_password = request.form.get("current-password")
         new_password = request.form.get("new-password")
         new_password_check = request.form.get("new-password-check")
 
-        # check if user has provided the password
+        # Verifica se a senha não está em branco
         if not request.form.get("new-password"):
             return apology("Coloque uma senha nova", 403)
 
-        # check if new passwords match
+        # verifica se as novas senhas sao iguais
         if new_password != new_password_check:
             return apology("Senhas diferentes", 403)
 
-        # find the user in the database
+        # encontra o usuario no banco de dados
         user = User.query.filter_by(id=session["user_id"]).first()
         check_pw = user.check_password(request.form.get("current-password"))
 
-        # if the current password provided is correct
+        # se a sena atual for correta:
         if check_pw == True:
 
-            # encrypt new pw
+            # criptografa a senha
             user.hashp = generate_password_hash(request.form.get("new-password"))
 
-            # add to database
+            # adiciona ao banco
             db.session.add(user)
             db.session.commit()
 
+        # redireciona para a home
         return redirect("/")
 
-    # if the user is looking for the form
+    # carrega a pagina (get)
     else:
         return render_template("senha.html")
 
 
-@app.route("/navegar", methods=["GET", "POST"])
-def navegar():
-    """
-    GET: Mostra a pagina com o formulario
-    POST: preforma a busca na API e mostra os resultados
-    """
-
-    # GET request
-    if request.method == "GET":
-        return render_template("navegar.html")
-
-    # POST request
-    elif request.method == "POST":
-
-        # o selector pode ter valores de 'query' ou 'seed'
-        selector = request.form.get("radio")
-
-        save_mode = request.form.get("save")
-        print(save_mode)
-
-        if save_mode == None:
-            session['save_mode'] = False
-            #global SAVE_MODE
-            #SAVE_MODE = False
-        elif save_mode == True:
-            #global SAVE_MODE
-            session['save_mode'] = True
-            #SAVE_MODE = True
-
-
-
-
-
-        if selector == 'seed':
-            query = request.form.get("videoid")
-        elif selector == 'query':
-            query = request.form.get("query")
-
-
-
-
-
-        # configura a quantidade de resultados que a busca deve retornar
-        # se não for preenchido o padrão usado será 5
-        mr_field = request.form.get("maxresults")
-
-        # se houver mudancas no max results
-        if mr_field != None and mr_field != '':
-            session['max_results'] = mr_field
-            #global MAX_RESULTS
-            #MAX_RESULTS = mr_field
-
-        # determina se e necessaria uma busca por relacionados ou por termo
-        if request.form.get("seed-mode") == True:
-            # verifica o save mode e chama a função
-            # caso seja uma busca por seed
-
-
-            videos = search('related', query, session['save_mode'])
-
-
-
-        else:
-            # verifica o save mode e chama a função
-            # (agora no caso do modo de pesquisa)
-
-            videos = search('query', query, session['save_mode'])
-
-
-
-        # render the page
-        return render_template("results.html", videos=videos)
-
-
 @app.route("/coletar", methods=["GET", "POST"])
+@login_required
 def coletar():
     """
     GET: Mostra a pagina com formulario para a coleta
@@ -365,21 +267,15 @@ def coletar():
         # o selector pode ter valores de 'query' ou 'seed'
         selector = request.form.get("radio")
 
-
         # pega os dados da pagina
         if selector == 'seed':
             query = request.form.get("videoid")
-            print(query)
         elif selector == 'query':
             query = request.form.get("query")
-            print(query)
 
-
-        #seed = request.form.get("seed-mode")
+        # pega os dados de profundidade e resultados por busca
         profundidade = request.form.get("profundidade")
         mr_field = request.form.get("maxresults")
-
-
 
         # mudancas no max results
         if mr_field != None and mr_field != '':
@@ -390,7 +286,13 @@ def coletar():
         # lista final a ser retornada
         final_video_list = []
 
+        # PRECISA DE UMA PROTECAO PARA EVITAR QUE UMA BUSCA SEM O RADIO MARCADO
+        # RETORNE UM ERRO 500
+        '''
+        ######################################################################################
+        '''
         # se nao for introduzido um termo ou video_id - retorna um erro
+
         if query == '':
             # caso a profundidade nao seja informada
             return render_template("coletar.html", msg="verifique o termo buscado")
@@ -400,39 +302,35 @@ def coletar():
             #if radio == 'seed'
             if selector == 'seed':
 
-                videos = search('related', query, True)
+                videos = search('related', query, True, 1)
                 final_video_list += videos
 
             #elif radio == 'query'
             elif selector == 'query':
 
-                videos = search('query', query, True)
+                videos = search('query', query, True, 1)
                 final_video_list += videos
 
         elif profundidade == '2':
 
             # Faz a busca e coloca os resultados na lista
-            if selector == 'seed':
-                # level 1
-                videos = search('related', query, True)
+            if selector == 'seed': # level 1
+                videos = search('related', query, True, 1)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
-                for video in videos:
-                    # level 2
-                    videos2 = search('related', video[0], True)
+                for video in videos: # level 2
+                    videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
 
-            elif selector == 'query':
-                # level 1
-                print(session)
-                videos = search('query', query, True)
+            elif selector == 'query': # level 1
+                #print(session)
+                videos = search('query', query, True, 1)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
-                for video in videos:
-                    # level 2
-                    videos2 = search('related', video[0], True)
+                for video in videos: # level 2
+                    videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
 
 
@@ -441,43 +339,36 @@ def coletar():
             level_2 = []
 
             # Faz a busca e coloca os resultados na lista
-            if selector == 'seed':
-                # level 1
-                videos = search('related', query, True)
+            if selector == 'seed': # level 1
+                videos = search('related', query, True, 1)
                 final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
-                for video in videos:
-                    # level 2
-                    videos2 = search('related', video[0], True)
+                for video in videos: # level 2
+                    videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados para
                     # cada um mais uma vez
-                    for vd in level_2:
-                        # level 3
-                        videos3 = search('related', vd[0], True)
+                    for vd in level_2: # level 3
+                        videos3 = search('related', vd[0], True, 3)
                         final_video_list += videos3
 
-            elif selector == 'query':
-                # level 1
-                videos = search('query', query, True)
+            elif selector == 'query': # level 1
+                videos = search('query', query, True, 1)
                 final_video_list += videos
-                #query_search(query)
 
                 # itera por cada resultado e faz uma busca de relacionados para cada
-                for video in videos:
-                    # Level 2
-                    videos2 = search('related', video[0], True)
+                for video in videos: # Level 2
+                    videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados para
                     # cada um mais uma vez
-                    for vd in level_2:
-                        # level 3
-                        videos3 = search('related', vd[0], True)
+                    for vd in level_2: # level 3
+                        videos3 = search('related', vd[0], True, 3)
                         final_video_list += videos3
 
 
@@ -491,6 +382,7 @@ def coletar():
 
 
 @app.route("/analisar")
+@login_required
 def analisar():
     """
     Cria uma visualização usando os dados coletados
@@ -499,47 +391,131 @@ def analisar():
     # render the page
     return render_template("analisar.html")
 
-@app.route("/resultados")
-def resultados():
+
+@app.route("/resultados", methods=["GET", "POST"])
+@app.route("/resultados/<id>")
+def resultados(id = None):
     """
     Cria uma pagina mostrando os videos coletados
+    Precida de mais comentários ##################################################################
     """
 
-    # cria uma lista para armazenar dados
-    videos = []
-    contador = Counter()
+    if request.method =='GET':
 
-    #nome do arquivo
-    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+        if id == None:
+            # cria uma lista para armazenar dados
+            videos = []
+            contador = Counter()
 
-    # abre o arquivo e le os dados
-    with open(nome_nodes, 'r') as csvfile2:
-        reader2 = csv.reader(csvfile2, delimiter=',')
+            #nome do arquivo
+            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
 
-        for row2 in reader2:
-            if row2[0] != 'video_id':
-                if row2[0] != 'query result':
-                    line2 = [row2[0], row2[1], row2[2], row2[4], row2[5], row2[6]]
-                    videos.append(line2)
+            # abre o arquivo e le os dados
+            with open(nome_nodes, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
 
-    for entrada in videos:
-        contador[entrada[0]] += 1
+                for row in reader:
+                    if row[0] != 'video_id':
 
-    lista_unica = []
-    lista_final = []
+                        line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                        videos.append(line)
 
-    for video in videos:
-        if video[0] not in lista_unica:
-            n_video = video
-            n_video.append(contador[video[0]])
-            lista_final.append(n_video)
-            lista_unica.append(video[0])
+            for entrada in videos:
+                contador[entrada[0]] += 1
+
+            lista_unica = []
+            lista_final = []
+
+            for video in videos:
+                if video[0] not in lista_unica:
+                    n_video = video
+                    n_video.append(contador[video[0]])
+                    lista_final.append(n_video)
+                    lista_unica.append(video[0])
 
 
-    # render the page
-    return render_template("resultados.html", videos=lista_final)
+            # render the page
+            return render_template("resultados.html", videos=lista_final)
+
+        elif id != None:
+            # COMENTAR DIREITO ESSA PARTE DO CÓDIGO
+
+            videos = []
+            videos2 = []
+            count = 1
+            checklist = []
+            lista_final = []
+
+            #nome do arquivo
+            nome_edges = 'static/' + session['username'] + '-edges.csv'
+
+            # abre o arquivo e le os dados
+            with open(nome_edges, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+
+                # remove o cabecalho e procura o id correto
+                for row in reader:
+                    if row[0] != 'source':
+                        if row[0] == id:
+                            videos.append(row[2])
+
+            # variavel com o nome do arquivo
+            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+            # abre o arquivo e le os dados
+            with open(nome_nodes, 'r') as csvfile2:
+                reader2 = csv.reader(csvfile2, delimiter=',')
+
+                for row in reader2:
+                    if row[0] != 'video_id':
+                        if row[0] in videos:
+                            if row[0] not in checklist:
+                                line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                                videos2.append(line)
+                                checklist.append(row[0])
+
+            for video in videos:
+                for v2 in videos2:
+                    if video == v2[0]:
+                        linha = v2
+                        lista_final.append(linha)
+                        count += 1
+
+
+            if len(lista_final) == 0:
+                msg = "não há dados de relacionados para este video"
+                return render_template("resultados3.html", msg=msg)
+
+            return render_template("resultados2.html", videos=lista_final)
+
+    # quando o usuario clica no botão de seeds (POST)
+    elif request.method =='POST':
+
+        # lista de videos seed - serao mostrados na pagina
+        videos = []
+
+        # variavel com o nome do arquivo
+        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+        # abre o arquivo e le os dados
+        with open(nome_nodes, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+
+            # remove o cabecalho e procura videos no nivel 1
+            for row in reader:
+                if row[7] != 'depht':
+                    if row[7] == '1':
+
+                        # adiciona os dados a lista que ira para a pagina
+                        line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                        videos.append(line)
+
+        # renderiza a pagina
+        return render_template("resultados2.html", videos = videos, profundidade = 'seeds')
+
 
 @app.route("/tabelas")
+@login_required
 def tabelas():
     """
     Renderiza uma página para baixar as tabelas
@@ -551,6 +527,7 @@ def tabelas():
 
 
 @app.route("/confirma")
+@login_required
 def confirma():
     """
     Confirma se o susario que apagar os dados
@@ -563,13 +540,13 @@ def confirma():
 
 
 @app.route("/apagar")
+@login_required
 def apagar():
+    """
+    Apaga os dados salvos na tabela
+    """
 
-    # se forem feitas alteracoes nas configuracoes
-
-
-    # Apaga os dados das tabelas e dicionario
-    #from api import dict
+    # Limpa o DICT com dados temporarios
     DICT.clear()
 
     # configura os nomes dos arquivos
@@ -585,7 +562,8 @@ def apagar():
                           'channel_id',
                           'published_at',
                           'thumbnail_url',
-                          'type'
+                          'type',
+                          'depth'
                           ])
 
     # cria um novo arquivo de edges
@@ -597,21 +575,10 @@ def apagar():
                           'target_name'
                           ])
 
+    # mostra mensagem se sucesso
     return render_template("tabelas.html", msg="Dados das tabelas apagados")
 
 
-
-@app.route("/results/<id>", methods=["GET", "POST"])
-def results(id):
-    """
-    Recebe o id de um video do youtube e pega os seus relacionados
-    os resultados sao exibidos para o usuario
-
-    """
-
-    videos = search('related', id, True)
-
-    return render_template("results.html", videos=videos)
 
 @socketio.on('get_nodes')
 def get_nodes():
@@ -635,7 +602,10 @@ def get_nodes():
         for row in reader:
             if row[0] != 'video_id':
                 if row[0] not in node_check:
-                    line = [row[0], row[1]]
+                    if row[7] == '1':
+                        line = [row[0], row[1], '#095F95']
+                    else:
+                        line = [row[0], row[1], '#000000']
                     nodes.append(line)
                     node_check.append(row[0])
 
@@ -671,19 +641,12 @@ def get_edges():
 # FUNCAO DE BUSCA DO YOUTUBE
 ################################################################################
 
-def search(mode, query, savemode):
+def search(mode, query, savemode, profundidade):
+    """
+    Colocar aqui uma docstring
+    #############################################################################################
+    """
 
-    # DEBUG
-    #print("Query: " + query)
-    #print("Mode: " + mode)
-    #print("savemode: " + str(savemode))
-
-    # importa a chave da api
-    #from application import MAX_RESULTS, DEVELOPER_KEY
-    #from application import session[max_results], session[developer_key]
-
-    # configura a API
-    #print(session)
 
     #youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=session['developer_key'])
@@ -717,6 +680,7 @@ def search(mode, query, savemode):
                                                 maxResults=session['max_results'],
                                                 type='video').execute()
 
+
     # itera pelos resultados da busca e adiciona a lista
     for search_result in search_response.get("items", []):
 
@@ -731,7 +695,9 @@ def search(mode, query, savemode):
                         search_result["snippet"]["channelId"],
                         search_result["snippet"]["publishedAt"],
                         search_result["snippet"]["thumbnails"]["default"]["url"],
-                        "video relacionado"]
+                        "video relacionado",
+                        profundidade
+                        ]
 
             elif mode == 'query':
                 #cria um node
@@ -741,7 +707,9 @@ def search(mode, query, savemode):
                         search_result["snippet"]["channelId"],
                         search_result["snippet"]["publishedAt"],
                         search_result["snippet"]["thumbnails"]["default"]["url"],
-                        "resultado de busca"]
+                        "resultado de busca",
+                        profundidade
+                        ]
 
             # adiciona o node a lista de videos
             videos.append(node)
