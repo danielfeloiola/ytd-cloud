@@ -111,17 +111,21 @@ def login():
     # Qaundo receber os dados (via POST)
     if request.method == "POST":
 
+        #pega os dados
+        username = request.form.get("username")
+        password = request.form.get("password")
+
         # Verifica se há um nome de usuário
-        if not request.form.get("username"):
+        if not username:
             return apology("usuário vazio", 403)
 
         # Verifica se realmente há uma senha
-        elif not request.form.get("password"):
+        elif not password:
             return apology("senha vazia", 403)
 
         # Busca o usuario no banco de dados e verifica a senha
-        user = User.query.filter_by(username=request.form.get("username")).first()
-        password_check = user.check_password(request.form.get("password"))
+        user = User.query.filter_by(username=username).first()
+        password_check = user.check_password(password)
 
         # Verifica se as senhas conferem
         if password_check == True:
@@ -165,6 +169,11 @@ def registrar():
     # Ao enviar dados via POST
     if request.method == "POST":
 
+        # pega os dados da pagina
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
         # Verifica se ha um nome de usuario
         if not request.form.get("username"):
             return apology("crie um nome de usuário", 403)
@@ -174,17 +183,14 @@ def registrar():
             return apology("crie uma senha", 403)
 
          # Verifica se as senhas conferem
-        if request.form.get("password") != request.form.get("confirmation"):
+        if password != confirmation:
             return apology("Senhas diferentes", 403)
 
         # criptografia da senha
-        hash_password = generate_password_hash(request.form.get("password"))
-
-        # configura o usrname
-        username = request.form.get("username")
+        hash_password = generate_password_hash(password)
 
         # verifica se já existe um usuário com esse username no banco de dados
-        username_query = User.query.filter_by(username=request.form.get("username")).first()
+        username_query = User.query.filter_by(username=username).first()
 
         # Se for um nome unico adiciona ao banco, senao mostra o erro
         if not username_query:
@@ -194,7 +200,10 @@ def registrar():
         else:
             return apology("usuario ja existe", 403)
 
-        #  faz o login
+        # Busca o usuario no banco de dados
+        user = User.query.filter_by(username=username).first()
+
+        # faz o login
         session["user_id"] = user.id
         session["username"] = user.username
 
@@ -222,7 +231,7 @@ def senha():
         new_password_check = request.form.get("new-password-check")
 
         # Verifica se a senha não está em branco
-        if not request.form.get("new-password"):
+        if not new_password:
             return apology("Coloque uma senha nova", 403)
 
         # verifica se as novas senhas sao iguais
@@ -231,13 +240,13 @@ def senha():
 
         # encontra o usuario no banco de dados
         user = User.query.filter_by(id=session["user_id"]).first()
-        check_pw = user.check_password(request.form.get("current-password"))
+        check_pw = user.check_password(current_password)
 
         # se a sena atual for correta:
         if check_pw == True:
 
             # criptografa a senha
-            user.hashp = generate_password_hash(request.form.get("new-password"))
+            user.hashp = generate_password_hash(new_password)
 
             # adiciona ao banco
             db.session.add(user)
@@ -272,8 +281,15 @@ def coletar():
     # POST request
     elif request.method == "POST":
 
+        # lista final a ser retornada
+        final_video_list = []
+
         # o selector pode ter valores de 'query' ou 'seed'
         selector = request.form.get("radio")
+
+        # pega os dados de profundidade e resultados por busca
+        profundidade = request.form.get("profundidade")
+        mr_field = request.form.get("maxresults")
 
         # pega os dados da pagina
         if selector == 'seed':
@@ -281,39 +297,33 @@ def coletar():
         elif selector == 'query':
             query = request.form.get("query")
 
-        # pega os dados de profundidade e resultados por busca
-        profundidade = request.form.get("profundidade")
-        mr_field = request.form.get("maxresults")
-
-        # mudancas no max results
+        # para mudancas no max results
         if mr_field != None and mr_field != '':
             session['max_results'] = mr_field
-            #global MAX_RESULTS
-            #MAX_RESULTS = mr_field
 
-        # lista final a ser retornada
-        final_video_list = []
-
-        # PRECISA DE UMA PROTECAO PARA EVITAR QUE UMA BUSCA SEM O RADIO MARCADO
-        # RETORNE UM ERRO 500
-        '''
-        ######################################################################################
-        '''
-        # se nao for introduzido um termo ou video_id - retorna um erro
+        # verificacoes de seguranca
+        if selector == None:
+            msg = "selecione um modo de busca"
+            return render_template("coletar.html", msg=msg)
 
         if query == '':
+            # caso não haja um termo de busca
+            msg = "verifique o termo buscado"
+            return render_template("coletar.html", msg=msg)
+
+        if profundidade == '':
             # caso a profundidade nao seja informada
-            return render_template("coletar.html", msg="verifique o termo buscado")
+            msg = "verifique a profundidade"
+            return render_template("coletar.html", msg = msg)
+
 
         # varia de acordo com a profundidade
         if profundidade == '1':
-            #if radio == 'seed'
             if selector == 'seed':
 
                 videos = search('related', query, True, 1)
                 final_video_list += videos
 
-            #elif radio == 'query'
             elif selector == 'query':
 
                 videos = search('query', query, True, 1)
@@ -326,17 +336,16 @@ def coletar():
                 videos = search('related', query, True, 1)
                 final_video_list += videos
 
-                # itera por cada resultado e faz uma busca de relacionados para cada
+                # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
 
             elif selector == 'query': # level 1
-                #print(session)
                 videos = search('query', query, True, 1)
                 final_video_list += videos
 
-                # itera por cada resultado e faz uma busca de relacionados para cada
+                # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
@@ -351,14 +360,14 @@ def coletar():
                 videos = search('related', query, True, 1)
                 final_video_list += videos
 
-                # itera por cada resultado e faz uma busca de relacionados para cada
+                # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
                     level_2 += videos2
 
-                    # itera por cada resultado e faz uma busca de relacionados para
-                    # cada um mais uma vez
+                    # itera por cada resultado e faz uma busca de relacionados
+                    # para cada um mais uma vez
                     for vd in level_2: # level 3
                         videos3 = search('related', vd[0], True, 3)
                         final_video_list += videos3
@@ -367,22 +376,17 @@ def coletar():
                 videos = search('query', query, True, 1)
                 final_video_list += videos
 
-                # itera por cada resultado e faz uma busca de relacionados para cada
+                # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # Level 2
                     videos2 = search('related', video[0], True, 2)
                     final_video_list += videos2
                     level_2 += videos2
 
-                    # itera por cada resultado e faz uma busca de relacionados para
-                    # cada um mais uma vez
+                    # itera por cada resultado e faz uma busca de relacionados
+                    # para cada um mais uma vez
                     for vd in level_2: # level 3
                         videos3 = search('related', vd[0], True, 3)
                         final_video_list += videos3
-
-
-        else:
-            # caso a profundidade nao seja informada
-            return render_template("coletar.html", msg="verifique a profundidade")
 
 
         # renderiza a pagina
@@ -405,17 +409,22 @@ def analisar():
 def resultados(id = None):
     """
     Cria uma pagina mostrando os videos coletados
-    Precida de mais comentários ##################################################################
+    A funcao pode ou nao receber um video_id
+    caso nao receba, ela carrega os resultados gerais
+    caso ela receba, ela mostra os relacionados daquele video específico
+
+    O modo POST mostra apenas os videos seeds
     """
 
     if request.method =='GET':
-
+        # mostra os dados gerais
         if id == None:
+
             # cria uma lista para armazenar dados
             videos = []
             contador = Counter()
 
-            #nome do arquivo
+            # nome do arquivo de nos
             nome_nodes = 'static/' + session['username'] + '-nodes.csv'
 
             # abre o arquivo e le os dados
@@ -423,17 +432,26 @@ def resultados(id = None):
                 reader = csv.reader(csvfile, delimiter=',')
 
                 for row in reader:
+                    # ignora o cabecalho
                     if row[0] != 'video_id':
-
-                        line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                        # adiciona os videos a lista
+                        line = [row[0],
+                                row[1],
+                                row[2],
+                                row[4],
+                                row[5],
+                                row[6]
+                                ]
                         videos.append(line)
 
+            # faz a contagem
             for entrada in videos:
                 contador[entrada[0]] += 1
 
             lista_unica = []
             lista_final = []
 
+            # retira videos repetidos
             for video in videos:
                 if video[0] not in lista_unica:
                     n_video = video
@@ -443,17 +461,17 @@ def resultados(id = None):
 
             # verifica se há dados
             if len(lista_final) == 0:
-                return apology("Não há dados")
+                return apology("Não há dados para mostrar")
 
             # render the page
             return render_template("resultados.html", videos=lista_final)
 
         elif id != None:
-            # COMENTAR DIREITO ESSA PARTE DO CÓDIGO
+            # caso haja um video_id
+            # será mostrado os relacionados desse video
 
             videos = []
             videos2 = []
-            count = 1
             checklist = []
             lista_final = []
 
@@ -468,6 +486,7 @@ def resultados(id = None):
                 for row in reader:
                     if row[0] != 'source':
                         if row[0] == id:
+                            # caso seja o id do video, pega os relacionados
                             videos.append(row[2])
 
             # variavel com o nome do arquivo
@@ -477,11 +496,18 @@ def resultados(id = None):
             with open(nome_nodes, 'r') as csvfile2:
                 reader2 = csv.reader(csvfile2, delimiter=',')
 
+                # pega os dados dos videos relacionados
                 for row in reader2:
                     if row[0] != 'video_id':
                         if row[0] in videos:
                             if row[0] not in checklist:
-                                line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                                line = [row[0],
+                                        row[1],
+                                        row[2],
+                                        row[4],
+                                        row[5],
+                                        row[6]
+                                        ]
                                 videos2.append(line)
                                 checklist.append(row[0])
 
@@ -490,8 +516,6 @@ def resultados(id = None):
                     if video == v2[0]:
                         linha = v2
                         lista_final.append(linha)
-                        count += 1
-
 
             if len(lista_final) == 0:
                 msg = "não há dados de relacionados para este video"
@@ -518,15 +542,24 @@ def resultados(id = None):
                     if row[7] == '1':
 
                         # adiciona os dados a lista que ira para a pagina
-                        line = [row[0], row[1], row[2], row[4], row[5], row[6]]
+                        line = [row[0],
+                                row[1],
+                                row[2],
+                                row[4],
+                                row[5],
+                                row[6]
+                                ]
                         videos.append(line)
 
         # verifica se há dados
         if len(videos) == 0:
-            return apology("Não há dados")
+            return apology("Não há dados para mostrar")
 
         # renderiza a pagina
-        return render_template("resultados2.html", videos = videos, profundidade = 'seeds')
+        return render_template("resultados2.html",
+                                videos = videos,
+                                profundidade = 'seeds'
+                                )
 
 
 @app.route("/tabelas")
@@ -652,19 +685,43 @@ def get_edges():
     # emite os dados para o socket-io
     emit('get_edges', edges)
 
+
+
 ################################################################################
 # FUNCAO DE BUSCA DO YOUTUBE
 ################################################################################
-
 def search(mode, query, savemode, profundidade):
     """
-    Colocar aqui uma docstring
-    #############################################################################################
+    Funcao que faz a busca na api do YOUTUBE
+    Recebe 4 valores:
+
+    primeiro:
+    "query" faz uma pesquisa por um termo ou "related" para videos relacionados
+
+    segundo:
+    termo a ser buscado ou id do vídeo a ser enviado para a api_field
+
+    terceiro:
+    se o savemode for False os dados não serão registrados nas tabelas
+
+    quarto:
+    profundidade da busca. 1 pega apenas resultados da busca enquanto 3
+    pega resultados da busca, seus relacionados e relacionados dos relacionados
+
+    Retorna:
+    uma lista com os vídeos recebidos da API
+    Também sao criadas duas tabelas csv que serão usadas em outras partes do app
+
+    os dados podem ser mantidos no DICT para evitar que uma consulta ao mesmo
+    video seja feita duas vezes, evitando o gasto da cota da API
+
     """
 
-
-    #youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=session['developer_key'])
+    # configuracao da API
+    youtube = build(YOUTUBE_API_SERVICE_NAME,
+                    YOUTUBE_API_VERSION,
+                    developerKey=session['developer_key']
+                    )
 
     # lista com a resposta da api que será retornada
     videos = []
@@ -699,7 +756,7 @@ def search(mode, query, savemode, profundidade):
     # itera pelos resultados da busca e adiciona a lista
     for search_result in search_response.get("items", []):
 
-        # usa apenas os vídeos recomendados, ignora canais e playlists (por enquanto)
+        # usa apenas os vídeos recomendados, ignora canais e playlists
         if search_result["id"]["kind"] == "youtube#video":
 
             if mode == 'related':

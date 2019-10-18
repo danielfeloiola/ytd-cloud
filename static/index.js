@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: point[1],
                 x: Math.random(),
                 y: Math.random(),
-                size: 3,
+                size: 4,
                 color: point[2]
             }
 
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: counter,
                 source: point[0],
                 target: point[1],
-                color: "#404040",
+                color: "#707070",
                 size:1,
                 type:'arrow',
             }
