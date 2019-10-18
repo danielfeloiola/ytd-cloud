@@ -571,7 +571,9 @@ def tabelas():
 
     # mostra a pagina
     #if request.method == "GET":
-    return render_template("tabelas.html")
+    nodes = 'static/' + session['username'] + '-nodes.csv'
+    edges = 'static/' + session['username'] + '-edges.csv'
+    return render_template("tabelas.html", nodes=nodes, edges=edges)
 
 
 @app.route("/confirma")
