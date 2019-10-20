@@ -469,8 +469,7 @@ def resultados(id = None, id2 = None):
 
             # verifica se há dados
             if len(lista_final) == 0:
-                msg = "não há dados de relacionados para este video"
-                return render_template("resultadosnd.html", msg=msg)
+                return apology("Não há dados para mostrar")
 
             # render the page
             return render_template("resultados.html", videos=lista_final)
