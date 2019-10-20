@@ -5,11 +5,50 @@
 {% endblock %}
 
 {% block main %}
-    <div id="main" class="center">
+    <div id="main">
 
+        <!--<ul>-->
+        <table class="center">
+            <tr>
+                <form action="/resultados" method="get">
+                    <input type="submit" value="ver dados gerais" />
+                    Profundidade: {{profundidade}}
+                </form>
+            </tr>
+            {% if id1 %}
+            {{ id1}}
+            {% endif %}
 
-        <h3 style="text-align:center">{{ msg }}</h3>
+            {% if id2 %}
+            {{ id2}}
+            {% endif %}
 
-
+        {% for item in videos %}
+            <tr>
+                <td>
+                    <!-- Contador de aparicoes -->
+                    <li>{{ loop.index }}.</li>
+                </td>
+                <td>
+                    <!-- thumbnail -->
+                    <img src="{{ item.4 }}" alt="thumbnail">
+                </td>
+                <td>
+                    <!-- informacoes do video -->
+                    <li>{{ item.1 }}</li>
+                    <a href="https://youtu.be/{{ item.0 }}"><li>youtu.be/{{ item.0 }}</li></a>
+                    <li>{{ item.2 }}</li>
+                    <li>{{ item.5 }}</li>
+                    <!--<li>{{ item.6 }}</li>-->
+                </td>
+                <td>
+                    <!-- add a next button here
+                    <a href="/resultados/{{ item.0 }}" style="color: grey">
+                        <span class="glyphicon glyphicon-chevron-right"> >>> </span>
+                    </a>-->
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
     </div>
 {% endblock %}

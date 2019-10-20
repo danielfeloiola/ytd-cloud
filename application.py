@@ -398,15 +398,18 @@ def coletar():
 def analisar():
     """
     Cria uma visualização usando os dados coletados
+    a parte que controla os dados está em get_nodes e get_edges
+    os dados são passados para a pagina via SocketIO
     """
 
-    # render the page
+    # Renderiza a página
     return render_template("analisar.html")
 
 
 @app.route("/resultados", methods=["GET", "POST"])
 @app.route("/resultados/<id>")
-def resultados(id = None):
+@app.route("/resultados/<id>/<id2>")
+def resultados(id = None, id2 = None):
     """
     Cria uma pagina mostrando os videos coletados
     A funcao pode ou nao receber um video_id
@@ -419,6 +422,9 @@ def resultados(id = None):
     if request.method =='GET':
         # mostra os dados gerais
         if id == None:
+            # le todos os dados da tabela de nos
+            # conta quantas vezes cada vídeo aparece
+            # cria uma lista sem elementos repetidos
 
             # cria uma lista para armazenar dados
             videos = []
@@ -454,6 +460,8 @@ def resultados(id = None):
             # retira videos repetidos
             for video in videos:
                 if video[0] not in lista_unica:
+                    # o n_video conta o numero de vezes que cada
+                    # video aparece no dataset
                     n_video = video
                     n_video.append(contador[video[0]])
                     lista_final.append(n_video)
@@ -466,65 +474,179 @@ def resultados(id = None):
             # render the page
             return render_template("resultados.html", videos=lista_final)
 
+        # ESSA FUNÇÃO VAI PASSAR A PROCURAR APENAS NO NIVEL 2! if row[7] == '1':
         elif id != None:
+
+            if id2 != None:
+                #pass
+
+                videos = [] # seeds
+                videos2 = [] # relacionados
+                videos3= [] # agora essa é a lista com os dados dos videos
+                # usada para remover itens duplicados
+                checklist = []
+                checklist2 = []
+                # lista retornada no final da função
+                lista_final = []
+
+                #nome dos arquivos
+                nome_edges = 'static/' + session['username'] + '-edges.csv'
+                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+                # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
+                # abre o arquivo e le os dados
+                with open(nome_edges, 'r') as csvfile:
+                    reader = csv.reader(csvfile, delimiter=',')
+
+                    # remove o cabecalho e procura o id correto
+                    for row in reader:
+                        if row[0] != 'source':
+                            if row[0] == id:
+                                # caso seja o id do video, pega os relacionados
+                                videos.append(row[2])
+
+                    #print("videos 1:") ################################################################
+                    #print(videos)
+
+                    # ISSO ESTÁ ERRADO - PRECISA PASSAR PELO ARQUIVO DE NOVO ?!########################
+
+                with open(nome_edges, 'r') as csvfile:
+                    reader2 = csv.reader(csvfile, delimiter=',')
+
+
+                    # Procurar o ID 2 na lista de relacionados do ID 1
+                    # REPETIR esse procedimento para pegar os relacionados ao ID 2
+                    for row2 in reader2:
+
+
+                        # remove o cabecalho e procura o id correto
+                        if row2[0] in videos:
+
+                            #if row[0] != 'source':
+                            if row2[0] == id2:
+                                if row2[2] not in checklist2:
+                                    # caso seja o id do video, pega os relacionados
+                                    videos2.append(row2[2]) ##############################################
+                                    checklist2.append(row2[2])#   BUG
+
+                #print('Videos 2: ')
+                #print(videos2) ###################################################
+
+                # 2 - E AGORA OS DADOS DESSES RELACIONADOS DE RELACIONADOS
+                # abre o arquivo e le os dados
+                with open(nome_nodes, 'r') as csvfile2:
+                    reader3 = csv.reader(csvfile2, delimiter=',')
+
+                    # pega os dados dos videos relacionados
+                    for row3 in reader3:
+                        if row3[0] != 'video_id':
+                            if row3[0] in videos2:
+                                if row3[0] not in checklist:
+                                    line = [row3[0],
+                                            row3[1],
+                                            row3[2],
+                                            row3[4],
+                                            row3[5],
+                                            row3[6],
+                                            row3[7]
+                                            ]
+                                    videos3.append(line)
+                                    checklist.append(row3[0])
+                    #print(checklist)
+
+                # Coloca os dados dos videos relacionados na lista final
+                #for v2 in videos2: # para cada relacionado
+                #    for v3 in videos3: # para cada video na lista de videos
+                #        if v2 == v3[0]: # se as ids forem iguais
+                #            linha = v3 # linha é igual aos dados do video
+                #            lista_final.append(linha) # coloca a linha na lista
+
+                #print(videos3)
+                #print(" ------- ")
+                #print(lista_final)
+
+                if len(videos3) == 0:
+                    msg = "não há dados de relacionados para este video"
+                    return render_template("resultadosnd.html", msg=msg)
+
+                return render_template("resultados3.html",
+                                        profundidade = '3',
+                                        videos=videos3,
+                                        id1=id,
+                                        id2=id2
+                                        )
+    ###########################
+    #FIM DA BUSCA COM 2 IDS
+    ###########################
+                # procura os relacionados do video 1
+                # procura os relacionados do video 2
             # caso haja um video_id
             # será mostrado os relacionados desse video
 
-            videos = []
-            videos2 = []
-            checklist = []
-            lista_final = []
+            # PARA A BUSCA COM APENAS 1 ID
+            else:
+                videos = []
+                videos2 = []
+                checklist = []
+                lista_final = []
 
-            #nome do arquivo
-            nome_edges = 'static/' + session['username'] + '-edges.csv'
+                #nome do arquivo
+                nome_edges = 'static/' + session['username'] + '-edges.csv'
 
-            # abre o arquivo e le os dados
-            with open(nome_edges, 'r') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
+                # abre o arquivo e le os dados
+                with open(nome_edges, 'r') as csvfile:
+                    reader = csv.reader(csvfile, delimiter=',')
 
-                # remove o cabecalho e procura o id correto
-                for row in reader:
-                    if row[0] != 'source':
-                        if row[0] == id:
-                            # caso seja o id do video, pega os relacionados
-                            videos.append(row[2])
+                    # remove o cabecalho e procura o id correto
+                    for row in reader:
+                        if row[0] != 'source':
+                            if row[0] == id:
+                                # caso seja o id do video, pega os relacionados
+                                videos.append(row[2])
 
-            # variavel com o nome do arquivo
-            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+                # variavel com o nome do arquivo
+                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
 
-            # abre o arquivo e le os dados
-            with open(nome_nodes, 'r') as csvfile2:
-                reader2 = csv.reader(csvfile2, delimiter=',')
+                # abre o arquivo e le os dados
+                with open(nome_nodes, 'r') as csvfile2:
+                    reader2 = csv.reader(csvfile2, delimiter=',')
 
-                # pega os dados dos videos relacionados
-                for row in reader2:
-                    if row[0] != 'video_id':
-                        if row[0] in videos:
-                            if row[0] not in checklist:
-                                line = [row[0],
-                                        row[1],
-                                        row[2],
-                                        row[4],
-                                        row[5],
-                                        row[6]
-                                        ]
-                                videos2.append(line)
-                                checklist.append(row[0])
+                    # pega os dados dos videos relacionados
+                    for row in reader2:
+                        if row[0] != 'video_id':
+                            if row[0] in videos:
+                                if row[0] not in checklist:
+                                    line = [row[0],
+                                            row[1],
+                                            row[2],
+                                            row[4],
+                                            row[5],
+                                            row[6],
+                                            row[7]
+                                            ]
+                                    videos2.append(line)
+                                    checklist.append(row[0])
 
-            for video in videos:
-                for v2 in videos2:
-                    if video == v2[0]:
-                        linha = v2
-                        lista_final.append(linha)
+                #print(videos2)
+                for video in videos:
+                    for v2 in videos2:
+                        if video == v2[0]:
+                            linha = v2
+                            lista_final.append(linha)
 
-            if len(lista_final) == 0:
-                msg = "não há dados de relacionados para este video"
-                return render_template("resultados3.html", msg=msg)
+                if len(lista_final) == 0:
+                    msg = "não há dados de relacionados para este video"
+                    return render_template("resultadosnd.html", msg=msg)
 
-            return render_template("resultados2.html", videos=lista_final)
+                return render_template("resultados2.html",
+                                        profundidade = '2',
+                                        videos=lista_final,
+                                        id1=id
+                                        )
 
     # quando o usuario clica no botão de seeds (POST)
     elif request.method =='POST':
+        # MUDAR PARA 2 MODOS DE POST - BOTÃO SEEDS/DADOS GERAIS MAIS OS PARENTS DE CADA VIDEO?
 
         # lista de videos seed - serao mostrados na pagina
         videos = []
@@ -547,7 +669,8 @@ def resultados(id = None):
                                 row[2],
                                 row[4],
                                 row[5],
-                                row[6]
+                                row[6],
+                                row[7]
                                 ]
                         videos.append(line)
 
@@ -556,9 +679,9 @@ def resultados(id = None):
             return apology("Não há dados para mostrar")
 
         # renderiza a pagina
-        return render_template("resultados2.html",
+        return render_template("resultados1.html",
                                 videos = videos,
-                                profundidade = 'seeds'
+                                profundidade = '1 (seeds)'
                                 )
 
 
@@ -637,6 +760,9 @@ def get_nodes():
     Faz a leitura a partir do arquivo csv
     '''
 
+    # cria um contador
+    contador = Counter()
+
     # cria uma lista para armazenar dados
     nodes = []
 
@@ -651,16 +777,63 @@ def get_nodes():
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             if row[0] != 'video_id':
-                if row[0] not in node_check:
-                    if row[7] == '1':
-                        line = [row[0], row[1], '#095F95']
-                    else:
-                        line = [row[0], row[1], '#000000']
-                    nodes.append(line)
-                    node_check.append(row[0])
+                #if row[0] not in node_check:
+                if row[7] == '1':
+                    line = [row[0], row[1], '#095F95']
+                else:
+                    line = [row[0], row[1], '#000000']
+                nodes.append(line)
+                #node_check.append(row[0])
+
+
+    for entrada in nodes:
+        contador[entrada[0]] += 1
+
+    lista_unica = []
+    lista_final = []
+
+    # retira videos repetidos
+    for video in nodes:
+        if video[0] not in lista_unica:
+            # o n_video conta o numero de vezes que cada
+            # video aparece no dataset
+            '''
+            ao invés do append(contador[video]) criar condições para adicionar
+            os valores do tamanho e cor a lista_final
+            if contador[video] == 1:
+                size = 1
+                n_video.append(size)
+            elif 1 < contador < 10:
+                size = 2
+                n_video.append(size)
+            '''
+            n_video = video
+
+
+            if 1 <= contador[video[0]] < 10:
+                size = 2
+                n_video.append(size)
+            elif 10 <= contador[video[0]] < 20:
+                size = 3
+                n_video.append(size)
+            elif 20 <= contador[video[0]] < 30:
+                size = 4
+                n_video.append(size)
+            elif 30 <= contador[video[0]] < 40:
+                size = 5
+                n_video.append(size)
+            elif 40 <= contador[video[0]]:
+                size = 6
+                n_video.append(size)
+
+            #n_video.append(contador[video[0]])
+            lista_final.append(video)
+            lista_unica.append(video[0])
+
+    #print(lista_final)
 
     # emite os dados para o socket-io
-    emit('get_nodes', nodes)
+    emit('get_nodes', lista_final)
 
 
 @socketio.on('get_edges')
@@ -681,8 +854,9 @@ def get_edges():
         reader2 = csv.reader(csvfile2, delimiter=',') # quotechar='|'
         for row2 in reader2:
             if row2[0] != 'source':
-                line2 = [row2[0], row2[2]]
-                edges.append(line2)
+                if row2[0] != 'query result':
+                    line2 = [row2[0], row2[2]]
+                    edges.append(line2)
 
     # emite os dados para o socket-io
     emit('get_edges', edges)
@@ -718,6 +892,10 @@ def search(mode, query, savemode, profundidade):
     video seja feita duas vezes, evitando o gasto da cota da API
 
     """
+
+    # aviavel usada para contar a quantidade de
+    # respostas em cada chamada da api
+    contador_loop = 0
 
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
@@ -798,7 +976,8 @@ def search(mode, query, savemode, profundidade):
                 edge = [query,
                         VIDEO_NAMES[query],
                         search_result["id"]["videoId"],
-                        search_result["snippet"]["title"]]
+                        search_result["snippet"]["title"]
+                        ]
             # se for uma busca por termo, coloca o termo na tabela para referencia
             '''
             elif mode == 'query':
@@ -806,7 +985,10 @@ def search(mode, query, savemode, profundidade):
                 edge = ['query result',
                         'query: ' + query,
                         search_result["id"]["videoId"],
-                        search_result["snippet"]["title"]]
+                        search_result["snippet"]["title"],
+                        profundidade,
+                        contador_loop
+                        ]
             '''
             # verifica se o usuário prefere se os dados sejam salvos
             if savemode == True:
@@ -829,6 +1011,8 @@ def search(mode, query, savemode, profundidade):
                     with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
                         writer1 = csv.writer(csvfile1, lineterminator = '\n')
                         writer1.writerow(node)
+
+            contador_loop += 1
 
     # adiciona o video ao dict para evitar uma busca duplicada na API caso o videos
     # seja recomendado pela api mais uma vez

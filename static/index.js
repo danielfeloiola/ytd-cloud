@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'canvas'
         },
         settings: {
-            minEdgeSize: 0.1,
+            minEdgeSize: 2,
             maxEdgeSize: 2,
             minNodeSize: 1,
-            maxNodeSize: 4,
-            minArrowSize: 10
+            maxNodeSize: 6,
+            minArrowSize: 4
         }
     });
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: point[1],
                 x: Math.random(),
                 y: Math.random(),
-                size: 4,
+                size: point[3],
                 color: point[2]
             }
 
@@ -96,9 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
         var noverlapListener = s.configNoverlap({
             nodeMargin: 0.1,
             scaleNodes: 1.05,
-            gridSize: 750,
+            gridSize: 990,
             easing: 'quadraticInOut', // transicao da animacao
-            duration: 1000   // duracao da animacao
+            duration: 1100   // duracao da animacao
         });
 
 

@@ -12,9 +12,18 @@
             <tr>
                 <form action="/resultados" method="get">
                     <input type="submit" value="ver dados gerais" />
-                    {{profundidade}}
+                    Profundidade: {{profundidade}}
                 </form>
             </tr>
+            {% if id1 %}
+            {{ id1 }}
+            {% endif %}
+
+
+            <!--
+             A PAGINA PRECISA CONTER OS DADOS DOS PARENTS DE CADA VIDEO E
+            PASSA-LOS VIA POST PARA O BACKEND
+            -->
 
         {% for item in videos %}
             <tr>
@@ -32,10 +41,11 @@
                     <a href="https://youtu.be/{{ item.0 }}"><li>youtu.be/{{ item.0 }}</li></a>
                     <li>{{ item.2 }}</li>
                     <li>{{ item.5 }}</li>
+                    <!--<li>{{ item.6 }}</li>-->
                 </td>
                 <td>
                     <!-- add a next button here -->
-                    <a href="/resultados/{{ item.0 }}" style="color: grey">
+                    <a href="/resultados/{{ id1 }}/{{ item.0 }}" style="color: grey">
                         <span class="glyphicon glyphicon-chevron-right"> >>> </span>
                     </a>
                 </td>
