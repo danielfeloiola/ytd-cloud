@@ -409,6 +409,7 @@ def analisar():
 @app.route("/resultados", methods=["GET", "POST"])
 @app.route("/resultados/<id>")
 @app.route("/resultados/<id>/<id2>")
+@login_required
 def resultados(id = None, id2 = None):
     """
     Cria uma pagina mostrando os videos coletados
