@@ -405,6 +405,7 @@ def analisar():
     # Renderiza a página
     return render_template("analisar.html")
 
+###########################################################################################################
 
 @app.route("/resultados", methods=["GET", "POST"])
 @app.route("/resultados/<id>")
@@ -475,6 +476,8 @@ def resultados(id = None, id2 = None):
             # render the page
             return render_template("resultados.html", videos=lista_final)
 
+##########################################################################################################
+
         # ESSA FUNÇÃO VAI PASSAR A PROCURAR APENAS NO NIVEL 2! if row[7] == '1':
         elif id != None:
 
@@ -506,10 +509,8 @@ def resultados(id = None, id2 = None):
                                 # caso seja o id do video, pega os relacionados
                                 videos.append(row[2])
 
-                    #print("videos 1:") ################################################################
                     #print(videos)
 
-                    # ISSO ESTÁ ERRADO - PRECISA PASSAR PELO ARQUIVO DE NOVO ?!########################
 
                 with open(nome_edges, 'r') as csvfile:
                     reader2 = csv.reader(csvfile, delimiter=',')
@@ -531,7 +532,6 @@ def resultados(id = None, id2 = None):
                                     checklist2.append(row2[2])#   BUG
 
                 #print('Videos 2: ')
-                #print(videos2) ###################################################
 
                 # 2 - E AGORA OS DADOS DESSES RELACIONADOS DE RELACIONADOS
                 # abre o arquivo e le os dados
@@ -647,7 +647,6 @@ def resultados(id = None, id2 = None):
 
     # quando o usuario clica no botão de seeds (POST)
     elif request.method =='POST':
-        # MUDAR PARA 2 MODOS DE POST - BOTÃO SEEDS/DADOS GERAIS MAIS OS PARENTS DE CADA VIDEO?
 
         # lista de videos seed - serao mostrados na pagina
         videos = []
