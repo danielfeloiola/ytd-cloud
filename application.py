@@ -402,6 +402,31 @@ def analisar():
     os dados são passados para a pagina via SocketIO
     """
 
+    videos = []
+
+    # nome do arquivo de nos
+    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+    # abre o arquivo e le os dados
+    with open(nome_nodes, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+
+        for row in reader:
+            # ignora o cabecalho
+            if row[0] != 'video_id':
+                # adiciona os videos a lista
+                line = [row[0],
+                        row[1],
+                        row[2],
+                        row[4],
+                        row[5],
+                        row[6]
+                        ]
+                videos.append(line)
+
+    if len(videos) == 0:
+        return apology("Não há dados")
+
     # Renderiza a página
     return render_template("analisar.html")
 
@@ -903,6 +928,8 @@ def get_nodes():
             #n_video.append(contador[video[0]])
             lista_final.append(n_video)
             lista_unica.append(video[0])
+
+
 
     #print(lista_final)
 
