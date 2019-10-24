@@ -15,13 +15,35 @@
                     Profundidade: {{profundidade}}
                 </form>
             </tr>
+
+        <tr>
+            <td colspan="3">
             {% if id1 %}
-            {{ id1}}
+            Nível 1:
+            <br>
+            {{ video_name1 }}
+            <br>
+            <a href="https://youtu.be/{{ id1 }}">youtu.be/{{ id1 }}</a>
+
             {% endif %}
 
+            <td>
+        </tr>
+
+        <tr>
+            <td colspan="3">
             {% if id2 %}
-            {{ id2}}
+            Nível 2:
+            <br>
+            {{ video_name2 }}
+            <br>
+            <a href="https://youtu.be/{{ id2 }}">youtu.be/{{ id2 }}</a>
+
             {% endif %}
+
+            <td>
+        </tr>
+
 
         {% for item in videos %}
             <tr>

@@ -430,6 +430,8 @@ def resultados(id = None, id2 = None):
 
             # cria uma lista para armazenar dados
             videos = []
+            edges = set()
+            recomendados = []
             contador = Counter()
 
             # nome do arquivo de nos
@@ -452,9 +454,23 @@ def resultados(id = None, id2 = None):
                                 ]
                         videos.append(line)
 
+            # Agora com os edges
+            nome_edges = 'static/' + session['username'] + '-edges.csv'
+
+            # abre o arquivo e le os dados
+            with open(nome_edges, 'r') as csvfile2:
+                reader2 = csv.reader(csvfile2, delimiter=',')
+
+                # remove o cabecalho pega os recomendados
+                for row in reader2:
+                    if row[0] != 'source':
+                        #if row[0] == id:
+                            # caso seja o id do video, pega os relacionados
+                        edges.add((row[0], row[2]))
+
             # faz a contagem
-            for entrada in videos:
-                contador[entrada[0]] += 1
+            for entrada in edges:
+                contador[entrada[1]] += 1
 
             lista_unica = []
             lista_final = []
@@ -465,7 +481,10 @@ def resultados(id = None, id2 = None):
                     # o n_video conta o numero de vezes que cada
                     # video aparece no dataset
                     n_video = video
+
                     n_video.append(contador[video[0]])
+                    #n_video.append(contador[video])
+
                     lista_final.append(n_video)
                     lista_unica.append(video[0])
 
@@ -506,6 +525,7 @@ def resultados(id = None, id2 = None):
                     for row in reader:
                         if row[0] != 'source':
                             if row[0] == id:
+                                video_name1=row[1]
                                 # caso seja o id do video, pega os relacionados
                                 videos.append(row[2])
 
@@ -526,6 +546,7 @@ def resultados(id = None, id2 = None):
 
                             #if row[0] != 'source':
                             if row2[0] == id2:
+                                video_name2=row2[1]
                                 if row2[2] not in checklist2:
                                     # caso seja o id do video, pega os relacionados
                                     videos2.append(row2[2]) ##############################################
@@ -574,7 +595,9 @@ def resultados(id = None, id2 = None):
                                         profundidade = '3',
                                         videos=videos3,
                                         id1=id,
-                                        id2=id2
+                                        id2=id2,
+                                        video_name1=video_name1,
+                                        video_name2=video_name2
                                         )
     ###########################
     #FIM DA BUSCA COM 2 IDS
@@ -590,6 +613,7 @@ def resultados(id = None, id2 = None):
                 videos2 = []
                 checklist = []
                 lista_final = []
+                video_name = ''
 
                 #nome do arquivo
                 nome_edges = 'static/' + session['username'] + '-edges.csv'
@@ -604,6 +628,7 @@ def resultados(id = None, id2 = None):
                             if row[0] == id:
                                 # caso seja o id do video, pega os relacionados
                                 videos.append(row[2])
+                                video_name = row[1]
 
                 # variavel com o nome do arquivo
                 nome_nodes = 'static/' + session['username'] + '-nodes.csv'
@@ -642,7 +667,8 @@ def resultados(id = None, id2 = None):
                 return render_template("resultados2.html",
                                         profundidade = '2',
                                         videos=lista_final,
-                                        id1=id
+                                        id1=id,
+                                        video_name=video_name
                                         )
 
     # quando o usuario clica no botão de seeds (POST)
@@ -760,6 +786,9 @@ def get_nodes():
     Faz a leitura a partir do arquivo csv
     '''
 
+    # cria o set
+    edges = set()
+
     # cria um contador
     contador = Counter()
 
@@ -784,13 +813,38 @@ def get_nodes():
                     line = [row[0], row[1], '#000000']
                 nodes.append(line)
                 #node_check.append(row[0])
+    ############################################################################
+    # Agora com os edges
+    nome_edges = 'static/' + session['username'] + '-edges.csv'
 
+    # abre o arquivo e le os dados
+    with open(nome_edges, 'r') as csvfile2:
+        reader2 = csv.reader(csvfile2, delimiter=',')
 
-    for entrada in nodes:
-        contador[entrada[0]] += 1
+        # remove o cabecalho pega os recomendados
+        for row in reader2:
+            if row[0] != 'source':
+                #if row[0] == id:
+                    # caso seja o id do video, pega os relacionados
+                edges.add((row[0], row[2]))
+
+    # faz a contagem
+    for entrada in edges:
+        contador[entrada[1]] += 1
 
     lista_unica = []
     lista_final = []
+
+
+    #for entrada in nodes:
+    #    contador[entrada[0]] += 1
+
+    #lista_unica = []
+    #lista_final = []
+    ###########################################################################
+
+
+    ###########################################################################
 
     # retira videos repetidos
     for video in nodes:
@@ -810,24 +864,44 @@ def get_nodes():
             n_video = video
 
 
-            if 1 <= contador[video[0]] < 10:
+            if contador[video[0]] == 1:
                 size = 2
+                if video[2] == '#000000':
+                    n_video[2] = '#cc9900'
+                    #print(n_video)
+
                 n_video.append(size)
-            elif 10 <= contador[video[0]] < 20:
-                size = 3
-                n_video.append(size)
-            elif 20 <= contador[video[0]] < 30:
+                #print(n_video)
+            elif contador[video[0]] == 2:
                 size = 4
+                if video[2] == '#000000':
+                    n_video[2] = '#ff9933'
+
                 n_video.append(size)
-            elif 30 <= contador[video[0]] < 40:
-                size = 5
-                n_video.append(size)
-            elif 40 <= contador[video[0]]:
+            elif contador[video[0]] == 3:
                 size = 6
+
+                if video[2] == '#000000':
+                    n_video[2] = '#ff6600'
+
+                n_video.append(size)
+            elif contador[video[0]] == 4:
+                size = 8
+
+                if video[2] == '#000000':
+                    n_video[2] = '#cc0000'
+
+                n_video.append(size)
+            elif contador[video[0]] <= 5:
+                size = 10
+
+                if video[2] == '#000000':
+                    n_video[2] = '#660033'
+
                 n_video.append(size)
 
             #n_video.append(contador[video[0]])
-            lista_final.append(video)
+            lista_final.append(n_video)
             lista_unica.append(video[0])
 
     #print(lista_final)
@@ -1026,9 +1100,11 @@ def search(mode, query, savemode, profundidade):
 
 def errorhandler(e):
     """Handle error"""
+
     if not isinstance(e, HTTPException):
         e = InternalServerError()
     return apology(e.name, e.code)
+
 
 # Listen for errors
 for code in default_exceptions:
