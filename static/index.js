@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'canvas'
         },
         settings: {
-            minEdgeSize: 2,
-            maxEdgeSize: 2,
+            //minEdgeSize: 2,
+            //maxEdgeSize: 2,
             minNodeSize: 1,
             maxNodeSize: 6,
-            minArrowSize: 2
+            //minArrowSize: 4
         }
     });
 
@@ -94,9 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // noverlap
         // Configura o noverlap layout
         var noverlapListener = s.configNoverlap({
-            nodeMargin: 0.1,
+            nodeMargin: 1,
             scaleNodes: 1.05,
-            gridSize: 990,
+            gridSize: 99,
             easing: 'quadraticInOut', // transicao da animacao
             duration: 1100   // duracao da animacao
         });
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // inicia o algoritmo de espacialização
-        s.startForceAtlas2({worker: true, barnesHutOptimize: true});
+        s.startForceAtlas2({worker: true, barnesHutOptimize: false});
 
         // para o algoritmo apos 10s
         window.setTimeout(function() {s.killForceAtlas2(), s.startNoverlap()}, 10000 );

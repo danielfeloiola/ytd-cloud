@@ -898,27 +898,27 @@ def get_nodes():
                 n_video.append(size)
                 #print(n_video)
             elif contador[video[0]] == 2:
-                size = 2
+                size = 1
                 if video[2] == '#000000':
                     n_video[2] = '#ff9933'
 
                 n_video.append(size)
             elif contador[video[0]] == 3:
-                size = 3
+                size = 1
 
                 if video[2] == '#000000':
                     n_video[2] = '#ff6600'
 
                 n_video.append(size)
             elif contador[video[0]] == 4:
-                size = 4
+                size = 1
 
                 if video[2] == '#000000':
                     n_video[2] = '#cc0000'
 
                 n_video.append(size)
             elif contador[video[0]] <= 5:
-                size = 5
+                size = 1
 
                 if video[2] == '#000000':
                     n_video[2] = '#660033'
