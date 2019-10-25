@@ -20,11 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'canvas'
         },
         settings: {
-            //minEdgeSize: 2,
-            //maxEdgeSize: 2,
+            minEdgeSize: 2,
+            maxEdgeSize: 2,
             minNodeSize: 1,
             maxNodeSize: 6,
-            //minArrowSize: 4
+            //minArrowSize: 2
+            drawLabels: false
         }
     });
 
@@ -94,9 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // noverlap
         // Configura o noverlap layout
         var noverlapListener = s.configNoverlap({
-            nodeMargin: 1,
+            nodeMargin: 0.1,
             scaleNodes: 1.05,
-            gridSize: 99,
+            gridSize: 70,
             easing: 'quadraticInOut', // transicao da animacao
             duration: 1100   // duracao da animacao
         });
