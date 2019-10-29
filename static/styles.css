@@ -109,24 +109,13 @@ footer
     display: inline-block;
     float: left;
     width: 85%;
-
-
-}
-
-
+    }
 }
 
 img {
     max-width:90%
 
 }
-
-
-
-
-
-
-
 
 /*custom font*/
 @import url(https://fonts.googleapis.com/css?family=Merriweather+Sans);
@@ -135,14 +124,10 @@ img {
 
 
 .breadcrumbs {
-	/*centering*/
 	display: inline-block;
-	/*box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.35);*/
 	overflow: hidden;
 	border-radius: 5px;
     margin-top: 1em;
-	/*Lets add the numbers for each link using CSS counters. flag is the name of the counter. to be defined using counter-reset in the parent element of the links*/
-	/*counter-reset: flag;*/
 }
 
 .breadcrumbs a {
@@ -153,26 +138,23 @@ img {
 	font-size: 14px;
 	line-height: 36px;
 	color: white;
-	/*need more margin on the left of links to accomodate the numbers*/
 	padding: 0 40px 0 40px;
 	background: #666;
 	background: linear-gradient(#666, #333);
 	position: relative;
 }
-/*since the first link does not have a triangle before it we can reduce the left padding to make it look consistent with other links*/
 .breadcrumbs a:first-child {
 	padding-left: 46px;
-	border-radius: 5px 0 0 5px; /*to match with the parent's radius*/
+	border-radius: 5px 0 0 5px;
 }
 .breadcrumbs a:first-child:before {
 	left: 14px;
 }
 .breadcrumbs a:last-child {
-	border-radius: 0 5px 5px 0; /*this was to prevent glitches on hover*/
+	border-radius: 0 5px 5px 0;
 	padding-right: 20px;
 }
 
-/*hover/active styles*/
 .breadcrumbs a.active, .breadcrumb a:hover{
 	background: #333;
 	background: linear-gradient(#333, #000);
@@ -181,46 +163,26 @@ img {
 	background: #333;
 	background: linear-gradient(135deg, #333, #000);
 }
-
-/*adding the arrows for the breadcrumbs using rotated pseudo elements*/
 .breadcrumbs a:after {
 	content: '';
 	position: absolute;
 	top: 0;
-	right: -18px; /*half of square's length*/
-	/*same dimension as the line-height of .breadcrumb a */
+	right: -18px;
 	width: 36px;
 	height: 36px;
-	/*as you see the rotated square takes a larger height. which makes it tough to position it properly. So we are going to scale it down so that the diagonals become equal to the line-height of the link. We scale it to 70.7% because if square's:
-	length = 1; diagonal = (1^2 + 1^2)^0.5 = 1.414 (pythagoras theorem)
-	if diagonal required = 1; length = 1/1.414 = 0.707*/
 	transform: scale(0.707) rotate(45deg);
-	/*we need to prevent the arrows from getting buried under the next link*/
 	z-index: 1;
-	/*background same as links but the gradient will be rotated to compensate with the transform applied*/
 	background: #666;
 	background: linear-gradient(135deg, #666, #333);
-	/*stylish arrow design using box shadow*/
-
-
-
 	box-shadow:
 		2px -2px 0 2px rgba(0, 0, 0, 0),
 		3px -3px 0 2px rgba(255, 255, 255, 1);
-	/*
-		5px - for rounded arrows and
-		50px - to prevent hover glitches on the border created using shadows*/
 	border-radius: 0 5px 0 50px;
 }
-/*we dont need an arrow after the last link*/
 .breadcrumbs a:last-child:after {
 	content: none;
 }
-/*we will use the :before element to show numbers*/
 .breadcrumbs a:before {
-	/*content: counter(flag);
-	counter-increment: flag;
-	/*some styles now*/
 	border-radius: 100%;
 	width: 20px;
 	height: 20px;
@@ -233,8 +195,6 @@ img {
 	background: linear-gradient(#444, #222);
 	font-weight: bold;
 }
-
-
 .flat a, .flat a:after {
 	background: #ff0000;
 	color: white;
@@ -242,7 +202,6 @@ img {
 }
 .flat a:before {
 	background: white;
-	/*box-shadow: 0 0 0 1px #ccc;*/
 }
 .flat a:hover,
 .flat a:hover:after {
@@ -258,195 +217,11 @@ img {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-@import url(https://fonts.googleapis.com/css?family=Monda:400,700);
-
-
-
-h1 {
-  margin: 0 0 20px 0;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2em;
-  color: #3FABBA;
-}
-
-a {
-  text-decoration: none;
-  color: #3FABBA;
-}
-
-.clear {
-  clear: both;
-}
-
-.animation {
-  -webkit-transition: all 0.3s ;
-  -moz-transition: all 0.3s ;
-  -ms-transition: all 0.3s ;
-  -o-transition: all 0.3s ;
-  transition: all 0.3s ;
-}
-
-.wrapper {
-  width: 600px;
-  padding: 20px;
-  margin: 20px auto;
-  background: #fff;
-}
-
-
-.breadCrumbs {
-  position: relative;
-  margin-top: 0.8rem !important;
-
-}
-
-.breadCrumbs li {
-    margin-left: 10px;
-    margin-right: 10px;
-  position: relative;
-  float: left;
-}
-
-.breadCrumbs li a,
-.breadCrumbs li p {
-  display: block;
-  padding: 0 10px 0 30px;
-  line-height: 40px;
-  color: #fff;
-  background: #3fabba;
-}
-
-.breadCrumbs li:first-child a {
-  padding: 0 10px 0 20px;
-}
-
-.breadCrumbs li a:hover {
-    color: #f0f0f0;
-}
-
-.breadCrumbs li.activePage p,
-.breadCrumbs li.activePage a {
-  background: #333;
-}
-
-.breadCrumbs li:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -20px;
-
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #3fabba;
-  z-index: 10;
-}
-
-.breadCrumbs li:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -20px;
-
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #3fabba;
-  z-index: 10;
-}
-
-.breadCrumbs li.activePage:after {
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #333;
-  border-right: 20px solid #333;
-}
-
-/* GIVE EVERY CHILD A DIFFERENT COLOR */
-
-
-
-
-
-
-
-
-
-/*
-.breadCrumbs li:nth-child(1) a {
-  background: #3fabba;
-}
-
-.breadCrumbs li:nth-child(1):after {
-  border-left: 20px solid #3fabba;
-}
-
-.breadCrumbs li:nth-child(2) a {
-  background: #46bdcd;
-}
-
-.breadCrumbs li:nth-child(2):after {
-  border-left: 20px solid #46bdcd;
-}
-
-.breadCrumbs li:nth-child(3) a {
-  background: #4bd0e2;
-}
-
-.breadCrumbs li:nth-child(3):after {
-  border-left: 20px solid #4bd0e2;
-}
-
-*/
-
-
-
-
-
-
-
-
-
-
-
 .breadcrumbs2 {
-	/*centering*/
 	display: inline-block;
-	/*box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.35);*/
 	overflow: hidden;
 	border-radius: 5px;
     margin-top: 1em;
-	/*Lets add the numbers for each link using CSS counters. flag is the name of the counter. to be defined using counter-reset in the parent element of the links*/
-	/*counter-reset: flag;*/
 }
 
 .breadcrumbs2 a {
@@ -457,26 +232,24 @@ a {
 	font-size: 14px;
 	line-height: 36px;
 	color: white;
-	/*need more margin on the left of links to accomodate the numbers*/
 	padding: 0 40px 0 40px;
 	background: #666;
 	background: linear-gradient(#666, #333);
 	position: relative;
 }
-/*since the first link does not have a triangle before it we can reduce the left padding to make it look consistent with other links*/
+
 .breadcrumbs2 a:first-child {
 	padding-left: 46px;
-	border-radius: 5px 0 0 5px; /*to match with the parent's radius*/
+	border-radius: 5px 0 0 5px;
 }
 .breadcrumbs2 a:first-child:before {
 	left: 14px;
 }
 .breadcrumbs2 a:last-child {
-	border-radius: 0 5px 5px 0; /*this was to prevent glitches on hover*/
+	border-radius: 0 5px 5px 0;
 	padding-right: 20px;
 }
 
-/*hover/active styles*/
 .breadcrumbs2 a.active, .breadcrumb a:hover{
 	background: #333;
 	background: linear-gradient(#333, #000);
@@ -486,7 +259,6 @@ a {
 	background: linear-gradient(135deg, #333, #000);
 }
 
-/*we dont need an arrow after the last link*/
 .breadcrumbs2 a:last-child:after {
 	content: none;
 }
@@ -499,291 +271,8 @@ a {
 }
 .flat2 a:before {
 	background: white;
-	/*box-shadow: 0 0 0 1px #ccc;*/
 }
 .flat2 a:hover, .flat2 a.active,
 .flat2 a:hover:after, .flat2 a.active:after{
 	background: #9EEB62;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-@import url(https://fonts.googleapis.com/css?family=Monda:400,700);
-
-
-
-h1 {
-  margin: 0 0 20px 0;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2em;
-  color: #3FABBA;
-}
-
-a {
-  text-decoration: none;
-  color: #3FABBA;
-}
-
-.clear {
-  clear: both;
-}
-
-.animation {
-  -webkit-transition: all 0.3s ;
-  -moz-transition: all 0.3s ;
-  -ms-transition: all 0.3s ;
-  -o-transition: all 0.3s ;
-  transition: all 0.3s ;
-}
-
-.wrapper {
-  width: 600px;
-  padding: 20px;
-  margin: 20px auto;
-  background: #fff;
-}
-
-
-.breadCrumbs {
-  position: relative;
-  margin-top: 0.8rem !important;
-
-}
-
-.breadCrumbs li {
-    margin-left: 10px;
-    margin-right: 10px;
-  position: relative;
-  float: left;
-}
-
-.breadCrumbs li a,
-.breadCrumbs li p {
-  display: block;
-  padding: 0 10px 0 30px;
-  line-height: 40px;
-  color: #fff;
-  background: #3fabba;
-}
-
-.breadCrumbs li:first-child a {
-  padding: 0 10px 0 20px;
-}
-
-.breadCrumbs li a:hover {
-    color: #f0f0f0;
-}
-
-.breadCrumbs li.activePage p,
-.breadCrumbs li.activePage a {
-  background: #333;
-}
-
-.breadCrumbs li:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -20px;
-
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #3fabba;
-  z-index: 10;
-}
-
-.breadCrumbs li:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -20px;
-
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #3fabba;
-  z-index: 10;
-}
-
-.breadCrumbs li.activePage:after {
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #333;
-  border-right: 20px solid #333;
-}
-
-/* GIVE EVERY CHILD A DIFFERENT COLOR */
-
-
-
-
-
-
-
-
-
-/*
-.breadCrumbs li:nth-child(1) a {
-  background: #3fabba;
-}
-
-.breadCrumbs li:nth-child(1):after {
-  border-left: 20px solid #3fabba;
-}
-
-.breadCrumbs li:nth-child(2) a {
-  background: #46bdcd;
-}
-
-.breadCrumbs li:nth-child(2):after {
-  border-left: 20px solid #46bdcd;
-}
-
-.breadCrumbs li:nth-child(3) a {
-  background: #4bd0e2;
-}
-
-.breadCrumbs li:nth-child(3):after {
-  border-left: 20px solid #4bd0e2;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.breadCrumbs2 {
-  position: relative;
-  margin-top: 0.8rem !important;
-  margin-left: auto;
-  margin-right: 2em;
-
-}
-
-.breadCrumbs2 li {
-  position: relative;
-  float: left;
-}
-
-.breadCrumbs2 li a,
-.breadCrumbs2 li p {
-  display: block;
-  padding: 0 10px 0 30px;
-  line-height: 40px;
-  color: #000;
-  background: #fafafa;
-}
-
-.breadCrumbs2 li:first-child a {
-  padding: 0 10px 0 20px;
-}
-
-.breadCrumbs2 li a:hover {
-    color: #707070
-
-}
-
-.breadCrumbs2 li.activePage p,
-.breadCrumbs2 li.activePage a {
-  background: #fafafa;
-}
-
-.breadCrumbs2 li:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -20px;
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #fafafa;
-  z-index: 10;
-}
-
-.breadCrumbs2 li.activePage:after {
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #333;
-}
-
-.breadCrumbs2 li.activePage:after:after {
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 20px solid #222;
-}
-
-/*
-ul{
-    align-items: center;
-}
-
-.thumbnails{
-    width:120px;
-}
-.description{
-    float:center;
-}
-*/
