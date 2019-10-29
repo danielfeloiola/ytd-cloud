@@ -17,6 +17,8 @@ from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
+
+
 # VARIAVEIS GLOBAIS
 
 # cria um dict para armazenamento
@@ -83,7 +85,7 @@ def index():
     if request.method == "GET":
 
         # mostra a pagina inicial
-        return render_template("index.html")
+        return render_template("index.html", page='index')
 
     elif request.method == "POST":
 
@@ -95,7 +97,7 @@ def index():
         if api_field != None and api_field !='':
             session['developer_key'] = api_field
         else:
-            return render_template("index.html", msg="Forneça chave da API")
+            return render_template("index.html", msg="Forneça chave da API", page='index')
 
         # passa para a proxima fase
         return redirect("/coletar")
@@ -273,10 +275,11 @@ def coletar():
     nivel 2: resultados de busca e suas recomendacoes
     nivel 3: resultados de busca, recomendacoes e recomendacoes subsequentes
     """
+    page = 'coletar'
 
     # GET request
     if request.method == "GET":
-        return render_template("coletar.html")
+        return render_template("coletar.html", page=page)
 
     # POST request
     elif request.method == "POST":
@@ -304,17 +307,17 @@ def coletar():
         # verificacoes de seguranca
         if selector == None:
             msg = "selecione um modo de busca"
-            return render_template("coletar.html", msg=msg)
+            return render_template("coletar.html", msg=msg, page=page)
 
         if query == '':
             # caso não haja um termo de busca
             msg = "verifique o termo buscado"
-            return render_template("coletar.html", msg=msg)
+            return render_template("coletar.html", msg=msg, page=page)
 
         if profundidade == '':
             # caso a profundidade nao seja informada
             msg = "verifique a profundidade"
-            return render_template("coletar.html", msg = msg)
+            return render_template("coletar.html", msg = msg, page=page)
 
 
         # varia de acordo com a profundidade
@@ -428,7 +431,7 @@ def analisar():
         return apology("Não há dados")
 
     # Renderiza a página
-    return render_template("analisar.html")
+    return render_template("analisar.html", page='analisar')
 
 ###########################################################################################################
 
@@ -518,7 +521,7 @@ def resultados(id = None, id2 = None):
                 return apology("Não há dados para mostrar")
 
             # render the page
-            return render_template("resultados.html", videos=lista_final)
+            return render_template("resultados.html", videos=lista_final, page='resultados')
 
 ##########################################################################################################
 
@@ -614,7 +617,7 @@ def resultados(id = None, id2 = None):
 
                 if len(videos3) == 0:
                     msg = "não há dados de relacionados para este video"
-                    return render_template("resultadosnd.html", msg=msg)
+                    return render_template("resultadosnd.html", msg=msg, page='resultados')
 
                 return render_template("resultados3.html",
                                         profundidade = '3',
@@ -622,7 +625,8 @@ def resultados(id = None, id2 = None):
                                         id1=id,
                                         id2=id2,
                                         video_name1=video_name1,
-                                        video_name2=video_name2
+                                        video_name2=video_name2,
+                                        page='resultados'
                                         )
     ###########################
     #FIM DA BUSCA COM 2 IDS
@@ -687,13 +691,14 @@ def resultados(id = None, id2 = None):
 
                 if len(lista_final) == 0:
                     msg = "não há dados de relacionados para este video"
-                    return render_template("resultadosnd.html", msg=msg)
+                    return render_template("resultadosnd.html", msg=msg, page='resultados')
 
                 return render_template("resultados2.html",
                                         profundidade = '2',
                                         videos=lista_final,
                                         id1=id,
-                                        video_name=video_name
+                                        video_name=video_name,
+                                        page='resultados'
                                         )
 
     # quando o usuario clica no botão de seeds (POST)
@@ -732,7 +737,8 @@ def resultados(id = None, id2 = None):
         # renderiza a pagina
         return render_template("resultados1.html",
                                 videos = videos,
-                                profundidade = '1 (seeds)'
+                                profundidade = '1 (seeds)',
+                                page='resultados'
                                 )
 
 
@@ -747,7 +753,7 @@ def tabelas():
     #if request.method == "GET":
     nodes = 'static/' + session['username'] + '-nodes.csv'
     edges = 'static/' + session['username'] + '-edges.csv'
-    return render_template("tabelas.html", nodes=nodes, edges=edges)
+    return render_template("tabelas.html", nodes=nodes, edges=edges, page='tabelas')
 
 
 @app.route("/confirma")
