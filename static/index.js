@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 size: point[3],
                 color: point[2]
             }
+            if (node.color == '#095F95'){
+                console.log(node)
+            }
 
             // adiciona ao grafo
             s.graph.addNode(node)
@@ -81,6 +84,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             counter++
         }
+        // para criar um popup com dados do video
+        /*
+        s.bind("clickNode", function(e) {
+            var node = e.data.node;
+
+            console.log(node);
+            socket.emit('node_data');
+
+            socket.on('node_data', data =>
+            {
+                node.size = 10;
+                node.color = "red";
+
+                var popup = document.getElementById("myPopup");
+                popup.classList.toggle("show");
+            }
+
+
+
+            s.refresh()
+
+
+        });
+        */
 
         // ajustes finais do grafo
 

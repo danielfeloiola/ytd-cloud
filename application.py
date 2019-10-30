@@ -10,7 +10,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
-from helpers import apology, login_required
+from helpers import apology, apology_two, login_required
 
 # API do Google
 from apiclient.discovery import build
@@ -85,7 +85,9 @@ def index():
     if request.method == "GET":
 
         # mostra a pagina inicial
-        return render_template("index.html", page='index')
+        return render_template("index.html",
+                                page='index'
+                                )
 
     elif request.method == "POST":
 
@@ -97,7 +99,10 @@ def index():
         if api_field != None and api_field !='':
             session['developer_key'] = api_field
         else:
-            return render_template("index.html", msg="Forneça chave da API", page='index')
+            return render_template("index.html",
+                                    msg="Forneça chave da API",
+                                    page='index'
+                                    )
 
         # passa para a proxima fase
         return redirect("/coletar")
@@ -279,10 +284,58 @@ def coletar():
 
     # GET request
     if request.method == "GET":
+
+        numeros = []
+        ids = []
+
+        # nome do arquivo de nos
+        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+        # abre o arquivo e le os dados
+        with open(nome_nodes, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+
+            for row in reader:
+                # ignora o cabecalho
+                if row[0] != 'video_id':
+                    # adiciona os videos a lista
+                    numeros.append(row[7])
+                    ids.append(row[0])
+
+        #print(numeros)
+        #print(ids)
+
+        if '1' in numeros:
+            if '2' not in numeros:
+                return render_template("coletar2.html", page=page)
+            if '3' not in numeros:
+                return render_template("coletar3.html", page=page)
+            else:
+                return apology_two("Não é possível coletar mais dados", page=page)
+
+
         return render_template("coletar.html", page=page)
 
     # POST request
     elif request.method == "POST":
+
+        numeros = []
+        ids = []
+
+        # nome do arquivo de nos
+        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+
+        # abre o arquivo e le os dados
+        with open(nome_nodes, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+
+            for row in reader:
+                # ignora o cabecalho
+                if row[0] != 'video_id':
+                    # adiciona os videos a lista
+                    numeros.append(row[7])
+                    ids.append(row[0])
+
 
         # lista final a ser retornada
         final_video_list = []
@@ -294,64 +347,105 @@ def coletar():
         profundidade = request.form.get("profundidade")
         mr_field = request.form.get("maxresults")
 
+        # para mudancas no max results
+        if mr_field != None and mr_field != '':
+            session['max_results'] = mr_field
+
+        # caso nenhum modo de busca seja selecionado
+        if selector == None:
+            msg = "selecione um modo de busca"
+            return render_template("coletar.html", msg=msg, page=page)
+
+        # caso a profundidade nao seja informada
+        if profundidade == '':
+            msg = "verifique a profundidade"
+            return render_template("coletar.html", msg = msg, page=page)
+
         # pega os dados da pagina
         if selector == 'seed':
             query = request.form.get("videoid")
         elif selector == 'query':
             query = request.form.get("query")
+        elif selector == 'ampliar':
+            query = "empty"
+            #######################################################
 
-        # para mudancas no max results
-        if mr_field != None and mr_field != '':
-            session['max_results'] = mr_field
+            if profundidade == '2':
+                #if selector == 'seed':
+                for id in ids:
+                    print(id)
+                    videos = search('related', id, 2)
+                    #final_video_list += videos
 
-        # verificacoes de seguranca
-        if selector == None:
-            msg = "selecione um modo de busca"
-            return render_template("coletar.html", msg=msg, page=page)
+            elif profundidade == '3':
+
+                level_2 = []
+
+                # Faz a busca e coloca os resultados na lista
+
+
+                # itera por cada resultado e faz uma busca de relacionados
+                for id in ids: # level 2
+                    print(id)
+
+                    videos2 = search('related', id, 2)
+                    #final_video_list += videos2
+                    level_2 += videos2
+
+                    # itera por cada resultado e faz uma busca de relacionados
+                    # para cada um mais uma vez
+                    for vd in level_2: # level 3
+                        videos3 = search('related', vd[0], 3)
+                        #final_video_list += videos3
+
+            print("________> this way!")
+            return redirect("/resultados")
+
+            ########################################################
+            #query = request.form.get("ampliar")
+
+
+
 
         if query == '':
             # caso não haja um termo de busca
             msg = "verifique o termo buscado"
             return render_template("coletar.html", msg=msg, page=page)
 
-        if profundidade == '':
-            # caso a profundidade nao seja informada
-            msg = "verifique a profundidade"
-            return render_template("coletar.html", msg = msg, page=page)
 
 
         # varia de acordo com a profundidade
         if profundidade == '1':
             if selector == 'seed':
 
-                videos = search('related', query, True, 1)
-                final_video_list += videos
+                videos = search('related', query, 1)
+                #final_video_list += videos
 
             elif selector == 'query':
 
-                videos = search('query', query, True, 1)
-                final_video_list += videos
+                videos = search('query', query, 1)
+                #final_video_list += videos
 
         elif profundidade == '2':
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
-                videos = search('related', query, True, 1)
-                final_video_list += videos
+                videos = search('related', query, 1)
+                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], True, 2)
-                    final_video_list += videos2
+                    videos2 = search('related', video[0], 2)
+                    #final_video_list += videos2
 
             elif selector == 'query': # level 1
-                videos = search('query', query, True, 1)
-                final_video_list += videos
+                videos = search('query', query, 1)
+                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], True, 2)
-                    final_video_list += videos2
+                    videos2 = search('related', video[0], 2)
+                    #final_video_list += videos2
 
 
         elif profundidade == '3':
@@ -360,36 +454,36 @@ def coletar():
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
-                videos = search('related', query, True, 1)
-                final_video_list += videos
+                videos = search('related', query, 1)
+                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], True, 2)
-                    final_video_list += videos2
+                    videos2 = search('related', video[0], 2)
+                    #final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
-                        videos3 = search('related', vd[0], True, 3)
-                        final_video_list += videos3
+                        videos3 = search('related', vd[0], 3)
+                        #final_video_list += videos3
 
             elif selector == 'query': # level 1
-                videos = search('query', query, True, 1)
-                final_video_list += videos
+                videos = search('query', query, 1)
+                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # Level 2
-                    videos2 = search('related', video[0], True, 2)
-                    final_video_list += videos2
+                    videos2 = search('related', video[0], 2)
+                    #final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
-                        videos3 = search('related', vd[0], True, 3)
-                        final_video_list += videos3
+                        videos3 = search('related', vd[0], 3)
+                        #final_video_list += videos3
 
 
         # renderiza a pagina
@@ -428,12 +522,12 @@ def analisar():
                 videos.append(line)
 
     if len(videos) == 0:
-        return apology("Não há dados")
+        return apology_two("Não há dados para mostrar", page='analisar')
 
     # Renderiza a página
     return render_template("analisar.html", page='analisar')
 
-###########################################################################################################
+
 
 @app.route("/resultados", methods=["GET", "POST"])
 @app.route("/resultados/<id>")
@@ -518,12 +612,16 @@ def resultados(id = None, id2 = None):
 
             # verifica se há dados
             if len(lista_final) == 0:
-                return apology("Não há dados para mostrar")
+                return apology_two("Não há dados para mostrar",
+                                    page='resultados'
+                                    )
 
             # render the page
-            return render_template("resultados.html", videos=lista_final, page='resultados')
+            return render_template("resultados.html",
+                                    videos=lista_final,
+                                    page='resultados'
+                                    )
 
-##########################################################################################################
 
         # ESSA FUNÇÃO VAI PASSAR A PROCURAR APENAS NO NIVEL 2! if row[7] == '1':
         elif id != None:
@@ -557,30 +655,23 @@ def resultados(id = None, id2 = None):
                                 # caso seja o id do video, pega os relacionados
                                 videos.append(row[2])
 
-                    #print(videos)
-
 
                 with open(nome_edges, 'r') as csvfile:
                     reader2 = csv.reader(csvfile, delimiter=',')
-
 
                     # Procurar o ID 2 na lista de relacionados do ID 1
                     # REPETIR esse procedimento para pegar os relacionados ao ID 2
                     for row2 in reader2:
 
-
                         # remove o cabecalho e procura o id correto
                         if row2[0] in videos:
-
-                            #if row[0] != 'source':
                             if row2[0] == id2:
                                 video_name2=row2[1]
                                 if row2[2] not in checklist2:
-                                    # caso seja o id do video, pega os relacionados
-                                    videos2.append(row2[2]) ##############################################
-                                    checklist2.append(row2[2])#   BUG
+                                    # caso seja o id do video, pega relacionados
+                                    videos2.append(row2[2])
+                                    checklist2.append(row2[2])
 
-                #print('Videos 2: ')
 
                 # 2 - E AGORA OS DADOS DESSES RELACIONADOS DE RELACIONADOS
                 # abre o arquivo e le os dados
@@ -602,18 +693,7 @@ def resultados(id = None, id2 = None):
                                             ]
                                     videos3.append(line)
                                     checklist.append(row3[0])
-                    #print(checklist)
 
-                # Coloca os dados dos videos relacionados na lista final
-                #for v2 in videos2: # para cada relacionado
-                #    for v3 in videos3: # para cada video na lista de videos
-                #        if v2 == v3[0]: # se as ids forem iguais
-                #            linha = v3 # linha é igual aos dados do video
-                #            lista_final.append(linha) # coloca a linha na lista
-
-                #print(videos3)
-                #print(" ------- ")
-                #print(lista_final)
 
                 if len(videos3) == 0:
                     msg = "não há dados de relacionados para este video"
@@ -628,13 +708,8 @@ def resultados(id = None, id2 = None):
                                         video_name2=video_name2,
                                         page='resultados'
                                         )
-    ###########################
-    #FIM DA BUSCA COM 2 IDS
-    ###########################
-                # procura os relacionados do video 1
-                # procura os relacionados do video 2
-            # caso haja um video_id
-            # será mostrado os relacionados desse video
+
+
 
             # PARA A BUSCA COM APENAS 1 ID
             else:
@@ -691,7 +766,10 @@ def resultados(id = None, id2 = None):
 
                 if len(lista_final) == 0:
                     msg = "não há dados de relacionados para este video"
-                    return render_template("resultadosnd.html", msg=msg, page='resultados')
+                    return render_template("resultadosnd.html",
+                                            msg=msg,
+                                            page='resultados'
+                                            )
 
                 return render_template("resultados2.html",
                                         profundidade = '2',
@@ -732,7 +810,9 @@ def resultados(id = None, id2 = None):
 
         # verifica se há dados
         if len(videos) == 0:
-            return apology("Não há dados para mostrar")
+            return apology_two("Não há dados para mostrar",
+                                page='resultados'
+                                )
 
         # renderiza a pagina
         return render_template("resultados1.html",
@@ -753,7 +833,11 @@ def tabelas():
     #if request.method == "GET":
     nodes = 'static/' + session['username'] + '-nodes.csv'
     edges = 'static/' + session['username'] + '-edges.csv'
-    return render_template("tabelas.html", nodes=nodes, edges=edges, page='tabelas')
+    return render_template("tabelas.html",
+                            nodes=nodes,
+                            edges=edges,
+                            page='tabelas'
+                            )
 
 
 @app.route("/confirma")
@@ -844,7 +928,7 @@ def get_nodes():
                     line = [row[0], row[1], '#000000']
                 nodes.append(line)
                 #node_check.append(row[0])
-    ############################################################################
+
     # Agora com os edges
     nome_edges = 'static/' + session['username'] + '-edges.csv'
 
@@ -867,16 +951,6 @@ def get_nodes():
     lista_final = []
 
 
-    #for entrada in nodes:
-    #    contador[entrada[0]] += 1
-
-    #lista_unica = []
-    #lista_final = []
-    ###########################################################################
-
-
-    ###########################################################################
-
     # retira videos repetidos
     for video in nodes:
         if video[0] not in lista_unica:
@@ -895,7 +969,7 @@ def get_nodes():
             n_video = video
 
 
-            if contador[video[0]] == 1:
+            if contador[video[0]] <= 1:
                 size = 1
                 if video[2] == '#000000':
                     n_video[2] = '#cc9900'
@@ -929,6 +1003,7 @@ def get_nodes():
                 if video[2] == '#000000':
                     n_video[2] = '#660033'
 
+
                 n_video.append(size)
 
             #n_video.append(contador[video[0]])
@@ -936,8 +1011,6 @@ def get_nodes():
             lista_unica.append(video[0])
 
 
-
-    #print(lista_final)
 
     # emite os dados para o socket-io
     emit('get_nodes', lista_final)
@@ -973,7 +1046,7 @@ def get_edges():
 ################################################################################
 # FUNCAO DE BUSCA DO YOUTUBE
 ################################################################################
-def search(mode, query, savemode, profundidade):
+def search(mode, query, profundidade):
     """
     Funcao que faz a busca na api do YOUTUBE
     Recebe 4 valores:
@@ -1098,26 +1171,26 @@ def search(mode, query, savemode, profundidade):
                         ]
             '''
             # verifica se o usuário prefere se os dados sejam salvos
-            if savemode == True:
+            #if savemode == True:
 
-                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-                nome_edges = 'static/' + session['username'] + '-edges.csv'
+            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+            nome_edges = 'static/' + session['username'] + '-edges.csv'
 
-                if mode == 'related':
-                    # adiciona o node a tabela de nodes
-                    with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
-                        writer1 = csv.writer(csvfile1, lineterminator = '\n')
-                        writer1.writerow(node)
+            if mode == 'related':
+                # adiciona o node a tabela de nodes
+                with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
+                    writer1 = csv.writer(csvfile1, lineterminator = '\n')
+                    writer1.writerow(node)
 
-                    # adiciona o edge a tabela de edges
-                    with open(nome_edges, 'a', newline = '', encoding = 'utf8') as csvfile2:
-                        writer2 = csv.writer(csvfile2, lineterminator = '\n')
-                        writer2.writerow(edge)
+                # adiciona o edge a tabela de edges
+                with open(nome_edges, 'a', newline = '', encoding = 'utf8') as csvfile2:
+                    writer2 = csv.writer(csvfile2, lineterminator = '\n')
+                    writer2.writerow(edge)
 
-                if mode == 'query':
-                    with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
-                        writer1 = csv.writer(csvfile1, lineterminator = '\n')
-                        writer1.writerow(node)
+            if mode == 'query':
+                with open(nome_nodes, 'a', newline = '', encoding = 'utf8') as csvfile1:
+                    writer1 = csv.writer(csvfile1, lineterminator = '\n')
+                    writer1.writerow(node)
 
             contador_loop += 1
 

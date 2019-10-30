@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Coletar
+{% endblock %}
+
+{% block main %}
+
+    {% if msg %}
+        <div class="alert alert-danger" role="alert">
+            {{ msg }}
+        </div>
+    {% endif %}
+
+    <form action="/coletar" method="post">
+    <!-- Nova interface para coleta de Dados -->
+    <hr>
+
+        <input type="radio" name="radio" value="query" disabled> Pesquisa<br>
+        <br>
+        <input autocomplete="off" autofocus class="form-control" name="query" placeholder="Termo de busca" type="text" disabled><br><br>
+        <hr>
+        <input type="radio" name="radio" value="seed" disabled> Seed<br>
+        <br>
+        <input autocomplete="off" autofocus class="form-control" name="videoid" placeholder="video_id" type="text" disabled><br><br>
+        <hr>
+        <input type="radio" name="radio" value="ampliar"> Ampliar busca<br>
+        <br>
+
+
+        <hr>
+        <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="Profundidade (2-3)" type="text"><br><br>
+        <input autocomplete="off" class="form-control" name="maxresults" placeholder="Resultados (1-50)" type="number"><br><br>
+
+        <button class="btn btn-primary" type="submit">Pesquisar</button>
+    </form>
+{% endblock %}
