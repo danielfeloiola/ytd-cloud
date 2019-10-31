@@ -319,21 +319,22 @@ img {
 
 /* The actual popup (appears on top) */
 .popup .popuptext {
- visibility: hidden;
- width: 160px;
+ /*visibility: hidden;*/
+ width: 600px;
  background-color: #555;
- color: #fff;
+ color: white;
  text-align: center;
  border-radius: 6px;
  padding: 8px 0;
  position: absolute;
  z-index: 1;
- bottom: 125%;
- left: 50%;
- margin-left: -80px;
+ bottom: 20px;
+ /*left: 50%;*/
+ margin-left: -300px;
+ margin-bottom: 100%;
 }
 
-/* Popup arrow */
+/* Popup arrow
 .popup .popuptext::after {
  content: "";
  position: absolute;
@@ -343,16 +344,16 @@ img {
  border-width: 5px;
  border-style: solid;
  border-color: #555 transparent transparent transparent;
-}
+}*/
 
-/* Toggle this class when clicking on the popup container (hide and show the popup) */
+/* Toggle this class when clicking on the popup container (hide and show the popup)
 .popup .show {
  visibility: visible;
  -webkit-animation: fadeIn 1s;
  animation: fadeIn 1s
-}
+}*/
 
-/* Add animation (fade in the popup) */
+/* Add animation (fade in the popup)
 @-webkit-keyframes fadeIn {
  from {opacity: 0;}
  to {opacity: 1;}
@@ -361,4 +362,90 @@ img {
 @keyframes fadeIn {
  from {opacity: 0;}
  to {opacity:1 ;}
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.left {
+  display: inline-block;
+  position: fixed;
+  /*width: 4em;
+  height: 4em;
+  border: 0.5em solid #333;*/
+  border-radius: 50%;
+  margin-left: -47%;
+  margin-top: 20%;
+}
+
+.left:after {
+  content: '';
+	display: inline-block;
+  margin-top: 1.05em;
+  margin-left: 0em;
+  width: 1.4em;
+  height: 1.4em;
+  border-top: 0.5em solid #333;
+  border-right: 0.5em solid #333;
+  -moz-transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+  transform: rotate(-135deg);
+}
+
+
+
+.right {
+  display: inline-block;
+  position: fixed;
+  margin-top: 20%;
+  /*width: 4em;
+  height: 4em;
+  border: 0.5em solid #333;*/
+  border-radius: 50%;
+  margin-left: 45%;
+}
+
+.right:after {
+  content: '';
+	display: inline-block;
+  margin-top: 1.05em;
+  margin-left: 0em;
+  width: 1.4em;
+  height: 1.4em;
+  border-top: 0.5em solid #333;
+  border-right: 0.5em solid #333;
+  -moz-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
 }

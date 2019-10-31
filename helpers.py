@@ -32,6 +32,20 @@ def apology_two(message, page, code=400):
         return s
     return render_template("apology.html", top=code, bottom=escape(message),page=page), code
 
+def apology_three(message, page, code=400):
+    """Render message as an apology to user."""
+    def escape(s):
+        """
+        Escape special characters.
+
+        https://github.com/jacebrowning/memegen#special-characters
+        """
+        for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
+                         ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
+            s = s.replace(old, new)
+        return s
+    return render_template("apology2.html", top=code, bottom=escape(message),page=page), code
+
 
 def login_required(f):
     """

@@ -85,21 +85,25 @@ document.addEventListener('DOMContentLoaded', () => {
             counter++
         }
         // para criar um popup com dados do video
-        /*
+
         s.bind("clickNode", function(e) {
             var node = e.data.node;
 
             console.log(node);
             socket.emit('node_data');
 
-            socket.on('node_data', data =>
-            {
-                node.size = 10;
-                node.color = "red";
+            //socket.on('node_data', data =>
+            //{
+            //node.size = 10;
+            //node.color = "red";
 
-                var popup = document.getElementById("myPopup");
-                popup.classList.toggle("show");
-            }
+            //<a href=""> </a>
+            var message = node.label + " - " + "<a href=https://youtu.be/" + node.id + " \"> "  + "link"
+
+            var popup = document.getElementById("myPopup");
+            popup.innerHTML = message
+            //popup.classList.toggle("show");
+            //}
 
 
 
@@ -107,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         });
-        */
+
 
         // ajustes finais do grafo
 

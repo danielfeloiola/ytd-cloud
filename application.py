@@ -10,7 +10,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
-from helpers import apology, apology_two, login_required
+from helpers import apology, apology_two, apology_three, login_required
 
 # API do Google
 from apiclient.discovery import build
@@ -279,12 +279,16 @@ def coletar():
     nivel 1: apenas resultados de uma busca.
     nivel 2: resultados de busca e suas recomendacoes
     nivel 3: resultados de busca, recomendacoes e recomendacoes subsequentes
+
+    o modo de ampliação da busca funciona pegando ids de uma busca ja realizada
+    e bucando os relacionados deles
     """
     page = 'coletar'
 
     # GET request
     if request.method == "GET":
 
+        # pega nos e ids - verifica a possibilidade de ampliacao da busca
         numeros = []
         ids = []
 
@@ -302,16 +306,14 @@ def coletar():
                     numeros.append(row[7])
                     ids.append(row[0])
 
-        #print(numeros)
-        #print(ids)
 
         if '1' in numeros:
             if '2' not in numeros:
                 return render_template("coletar2.html", page=page)
             if '3' not in numeros:
-                return render_template("coletar3.html", page=page)
+                return render_template("coletar2.html", page=page)
             else:
-                return apology_two("Não é possível coletar mais dados", page=page)
+                return apology_three("Não é possível coletar mais dados", page=page)
 
 
         return render_template("coletar.html", page=page)
@@ -319,8 +321,10 @@ def coletar():
     # POST request
     elif request.method == "POST":
 
+        # pega ids - necessarios caso seja uma ampliação
         numeros = []
         ids = []
+        prof_amp = 0
 
         # nome do arquivo de nos
         nome_nodes = 'static/' + session['username'] + '-nodes.csv'
@@ -334,8 +338,24 @@ def coletar():
                 if row[0] != 'video_id':
                     # adiciona os videos a lista
                     numeros.append(row[7])
-                    ids.append(row[0])
 
+
+        if '2' in numeros:
+            with open(nome_nodes, 'r') as csvfile2:
+                reader2 = csv.reader(csvfile2, delimiter=',')
+
+                for row2 in reader2:
+                    if row2[7] == '2':
+                        ids.append(row2[0])
+                        prof_amp = 3
+        else:
+            with open(nome_nodes, 'r') as csvfile2:
+                reader2 = csv.reader(csvfile2, delimiter=',')
+
+                for row2 in reader2:
+                    if row2[7] == '1':
+                        ids.append(row2[0])
+                        prof_amp = 2
 
         # lista final a ser retornada
         final_video_list = []
@@ -350,6 +370,8 @@ def coletar():
         # para mudancas no max results
         if mr_field != None and mr_field != '':
             session['max_results'] = mr_field
+
+        # verificacoes de seguranca
 
         # caso nenhum modo de busca seja selecionado
         if selector == None:
@@ -366,46 +388,18 @@ def coletar():
             query = request.form.get("videoid")
         elif selector == 'query':
             query = request.form.get("query")
+################################################################################
+        # caso seja uma amplicacao da busca ja existente!
         elif selector == 'ampliar':
-            query = "empty"
-            #######################################################
 
-            if profundidade == '2':
+            #if profundidade == '2':
                 #if selector == 'seed':
-                for id in ids:
-                    print(id)
-                    videos = search('related', id, 2)
-                    #final_video_list += videos
+            for id in ids:
+                videos = search('related', id, prof_amp)
 
-            elif profundidade == '3':
-
-                level_2 = []
-
-                # Faz a busca e coloca os resultados na lista
-
-
-                # itera por cada resultado e faz uma busca de relacionados
-                for id in ids: # level 2
-                    print(id)
-
-                    videos2 = search('related', id, 2)
-                    #final_video_list += videos2
-                    level_2 += videos2
-
-                    # itera por cada resultado e faz uma busca de relacionados
-                    # para cada um mais uma vez
-                    for vd in level_2: # level 3
-                        videos3 = search('related', vd[0], 3)
-                        #final_video_list += videos3
-
-            print("________> this way!")
             return redirect("/resultados")
 
-            ########################################################
-            #query = request.form.get("ampliar")
-
-
-
+################################################################################
 
         if query == '':
             # caso não haja um termo de busca
@@ -419,33 +413,27 @@ def coletar():
             if selector == 'seed':
 
                 videos = search('related', query, 1)
-                #final_video_list += videos
 
             elif selector == 'query':
 
                 videos = search('query', query, 1)
-                #final_video_list += videos
 
         elif profundidade == '2':
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
                 videos = search('related', query, 1)
-                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], 2)
-                    #final_video_list += videos2
 
             elif selector == 'query': # level 1
                 videos = search('query', query, 1)
-                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], 2)
-                    #final_video_list += videos2
 
 
         elif profundidade == '3':
@@ -455,35 +443,29 @@ def coletar():
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
                 videos = search('related', query, 1)
-                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
                     videos2 = search('related', video[0], 2)
-                    #final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
                         videos3 = search('related', vd[0], 3)
-                        #final_video_list += videos3
 
             elif selector == 'query': # level 1
                 videos = search('query', query, 1)
-                #final_video_list += videos
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # Level 2
                     videos2 = search('related', video[0], 2)
-                    #final_video_list += videos2
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
                         videos3 = search('related', vd[0], 3)
-                        #final_video_list += videos3
 
 
         # renderiza a pagina

@@ -6,6 +6,21 @@
 
 {% block main %}
 
+
+<div>
+    <a href="/">
+        <span class="left"></span>
+        <span class="glyphicon glyphicon-menu-left"></span>
+    </a>
+</div>
+
+<div>
+    <a href="/resultados">
+        <span class="right"></span>
+        <span class="glyphicon glyphicon-menu-right"></span>
+    </a>
+</div>
+
     {% if msg %}
         <div class="alert alert-danger" role="alert">
             {{ msg }}
@@ -24,12 +39,12 @@
         <br>
         <input autocomplete="off" autofocus class="form-control" name="videoid" placeholder="video_id" type="text" disabled><br><br>
         <hr>
-        <input type="radio" name="radio" value="ampliar"> Ampliar busca<br>
+        <input type="radio" name="radio" value="ampliar"> Ampliar busca em 1 nível de profundidade <br>
         <br>
 
 
         <hr>
-        <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="Profundidade (2-3)" type="text"><br><br>
+        <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="Profundidade (1)" type="text" disabled><br><br>
         <input autocomplete="off" class="form-control" name="maxresults" placeholder="Resultados (1-50)" type="number"><br><br>
 
         <button class="btn btn-primary" type="submit">Pesquisar</button>

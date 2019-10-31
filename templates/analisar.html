@@ -6,6 +6,21 @@
 
 {% block main %}
 
+<div>
+    <a href="/resultados">
+        <span class="left"></span>
+        <span class="glyphicon glyphicon-menu-left"></span>
+    </a>
+</div>
+
+<div>
+    <a href="/tabelas">
+        <span class="right"></span>
+        <span class="glyphicon glyphicon-menu-right"></span>
+    </a>
+</div>
+
+
 
 <!-- Sigma -->
 <script src="{{ url_for('static', filename='build/sigma.min.js')}}"></script>
@@ -38,9 +53,9 @@
 <body>
     <div id='sigma-container'></div>
 
-    <!--<div class="popup" onclick="myFunction()">
-        <span class="popuptext" id="myPopup">Popup text...</span>
-    </div>-->
+    <div class="popup">
+        <span class="popuptext" id="myPopup"></span>
+    </div>
 </body>
 
 

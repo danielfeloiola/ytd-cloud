@@ -38,11 +38,11 @@
                 <!-- Menu -->
                 {% if session.user_id %}
                     <ul class="breadcrumbs flat" >
-                        <a class="{{ 'active' if page == 'index' else '' }}" href="/">Iniciar</a>
-                        <a class="{{ 'active' if page == 'coletar' else '' }}" href="/coletar">Coletar</a>
-                        <a class="{{ 'active' if page == 'resultados' else '' }}" href="/resultados">Resultados</a></li>
-                        <a class="{{ 'active' if page == 'analisar' else '' }}" href="/analisar">Analisar</a></li>
-                        <a class="{{ 'active' if page == 'tabelas' else '' }}" href="/tabelas">Tabelas</a></li>
+                        <a class="{{ 'active' if page == 'index' else '' }}" href="">Iniciar</a>
+                        <a class="{{ 'active' if page == 'coletar' else '' }}" href="">Coletar</a>
+                        <a class="{{ 'active' if page == 'resultados' else '' }}" href="">Resultados</a></li>
+                        <a class="{{ 'active' if page == 'analisar' else '' }}" href="">Analisar</a></li>
+                        <a class="{{ 'active' if page == 'tabelas' else '' }}" href="">Tabelas</a></li>
                     </ul>
                     <ul class="breadcrumbs2 flat2">
                         <a href="/senha">Mudar Senha</a></li>
@@ -63,6 +63,7 @@
                 </div>
             </header>
         {% endif %}
+
         <main class="container p-5">
             {% block main %}{% endblock %}
         </main>

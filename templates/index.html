@@ -6,6 +6,16 @@
 
 {% block main %}
 
+<div>
+    {% if session.developer_key %}
+    <a href="/coletar">
+        <span class="right"></span>
+        <span class="glyphicon glyphicon-menu-right"></span>
+    </a>
+    {% endif %}
+</div>
+
+
 {% if msg %}
     <div class="alert alert-success" role="alert">
         {{ msg }}
