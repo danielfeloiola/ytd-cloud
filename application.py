@@ -58,6 +58,9 @@ db = SQLAlchemy(app)
 # secret key
 app.config['SECRET_KEY'] = os.environ['KEY']
 
+# teste da session
+app.config["SESSION_PERMANENT"] = False
+
 
 # Cria uma class para os usuarios
 class User(db.Model):
