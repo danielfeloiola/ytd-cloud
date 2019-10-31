@@ -131,7 +131,7 @@ img {
 .breadcrumbs {
     width: 100%;
     margin: auto;
-    position: fixed;
+    
 	display: inline-block;
 	overflow: hidden;
 	border-radius: 5px;

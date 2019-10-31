@@ -25,12 +25,6 @@
         <!--<ul>-->
         <table class="center">
             <tr>
-                <!--<form action="/resultados" method="get">
-                    <input type="submit" value="ver dados gerais" />-->
-                    Profundidade: {{profundidade}}
-                <!--</form>-->
-            </tr>
-            <tr>
                 <td colspan="3">
                 {% if id1 %}
                 Nível 1:
@@ -42,6 +36,20 @@
                 {% endif %}
                 <td>
             </tr>
+            <tr>
+                <!--<form action="/resultados" method="get">
+                    <input type="submit" value="ver dados gerais" />-->
+                    <td>Profundidade: {{profundidade}}</td>
+                <!--</form>-->
+            </tr>
+            <tr>
+                <td>voltar</td>
+                <td>Numero</td>
+                <td>Thumbnail</td>
+                <td>informacoes do video</td>
+                <td>prox</td>
+            </tr>
+
 
 
         {% for item in videos %}
