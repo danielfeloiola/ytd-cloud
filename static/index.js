@@ -50,9 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 size: point[3],
                 color: point[2]
             }
-            if (node.color == '#095F95'){
-                console.log(node)
-            }
 
             // adiciona ao grafo
             s.graph.addNode(node)
@@ -89,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         s.bind("clickNode", function(e) {
             var node = e.data.node;
 
-            console.log(node);
-            socket.emit('node_data');
+            //console.log(node);
+            //socket.emit('node_data');
 
             //socket.on('node_data', data =>
             //{
