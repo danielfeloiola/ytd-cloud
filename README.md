@@ -10,8 +10,13 @@ Versão de testes. Apresenta instabilidades.
 
 
 Breadcrumbs de navegação baseados no: https://codepen.io/arkev/pen/DzCKF
+<br>
 Ferramenta de visualização Sigma.js: http://sigmajs.org/
+<br>
 Front-end criado utilizando Bootstrap: https://getbootstrap.com/
+<br>
 Backend: Flask
+<br>
 Banco de Dados: Postgres
+<br>
 Template: C$50 Finance
