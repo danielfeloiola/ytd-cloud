@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Erro
+{% endblock %}
+
+{% block main %}
+
+<div>
+    <a href="/">
+        <span class="left"></span>
+        <span class="glyphicon glyphicon-menu-left"></span>
+    </a>
+</div>
+
+<div>
+    <a href="/resultados">
+        <span class="right"></span>
+        <span class="glyphicon glyphicon-menu-right"></span>
+    </a>
+</div>
+
+    <img alt="{{ top }}" class="border" src="http://memegen.link/custom/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg?alt=https://img.vixdata.io/pd/jpg-large/pt/sites/default/files/g/giovanna-forninho-video-0517-1400x800.jpg" title="{{ top }}">
+{% endblock %}
