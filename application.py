@@ -872,8 +872,8 @@ def apagar():
                           ])
 
     # mostra mensagem se sucesso
-    return render_template("tabelas.html", msg="Dados das tabelas apagados")
-
+    #return render_template("tabelas.html", msg="Dados das tabelas apagados")
+    return redirect("/coletar")
 
 
 @socketio.on('get_nodes')
