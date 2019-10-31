@@ -43,12 +43,12 @@ socketio = SocketIO(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # response cache
-@app.after_request
-def after_request(response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
+#@app.after_request
+#def after_request(response):
+#    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#    response.headers["Expires"] = 0
+#    response.headers["Pragma"] = "no-cache"
+#    return response
 
 # Configura o database SQL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
