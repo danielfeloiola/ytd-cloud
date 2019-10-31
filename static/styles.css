@@ -63,6 +63,11 @@ td
     padding: 5px;
 }
 
+table.left{
+    margin-left:auto;
+    margin-right:auto;
+
+}
 table.center
 {
     margin-left:auto;
@@ -124,10 +129,12 @@ img {
 
 
 .breadcrumbs {
+    width: 100%;
+    margin: auto;
+    position: fixed;
 	display: inline-block;
 	overflow: hidden;
 	border-radius: 5px;
-    margin-top: 1em;
     color: white;
 }
 
@@ -139,7 +146,7 @@ img {
 	font-size: 14px;
 	line-height: 36px;
 	color: white;
-	padding: 0 40px 0 40px;
+	padding: 0 30px 0 40px;
 	background: #666;
 	background: linear-gradient(#666, #333);
 	position: relative;
@@ -153,7 +160,7 @@ img {
 }
 .breadcrumbs a:last-child {
 	border-radius: 0 5px 5px 0;
-	padding-right: 20px;
+	padding-right: 46px;
 }
 
 .breadcrumbs a.active, .breadcrumb a:hover{
@@ -212,7 +219,7 @@ img {
 
 
 
-
+/*
 .breadcrumbs2 {
 	display: inline-block;
 	overflow: hidden;
@@ -243,7 +250,7 @@ img {
 }
 .breadcrumbs2 a:last-child {
 	border-radius: 0 5px 5px 0;
-	padding-right: 20px;
+	padding-right: 46px;
 }
 
 .breadcrumbs2 a.active, .breadcrumb a:hover{
@@ -273,7 +280,7 @@ img {
 	background: #9EEB62;
 }
 
-
+*/
 
 
 .popup {
@@ -284,8 +291,8 @@ img {
 
 .popup .popuptext {
  width: 600px;
- background-color: #555;
- color: white;
+ background-color: white;
+ color: black;
  text-align: center;
  border-radius: 6px;
  padding: 8px 0;

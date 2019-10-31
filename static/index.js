@@ -95,7 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
             //node.color = "red";
 
             //<a href=""> </a>
-            var message = node.label + " - " + "<a href=https://youtu.be/" + node.id + " \"> "  + "link"
+            //var message = node.label + " - " + "<a href=https://youtu.be/" + node.id + " \"> "  + "link"
+            var message = "<a href=https://youtu.be/" + node.id + " \"> " + node.label + "</a>";
 
             var popup = document.getElementById("myPopup");
             popup.innerHTML = message

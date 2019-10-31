@@ -15,7 +15,7 @@
 </div>
 
 <div>
-    <a href="/analisar">
+    <a href="/navegar">
         <span class="right"></span>
         <span class="glyphicon glyphicon-menu-right"></span>
     </a>
@@ -26,9 +26,9 @@
         <!--<ul>-->
         <table class="center">
             <tr>
-                <form action="/resultados" method="post">
+                <!--<form action="/resultados" method="post">
                     <input type="submit" name="seletor" value="ver os seeds" />
-                </form>
+                </form>-->
             </tr>
 
         {% for item in videos | sort(attribute='6', reverse = True) %}
@@ -50,10 +50,10 @@
                     <li>{{ item.7 }}</li>
                 </td>
                 <td>
-                    <!-- add a next button here -->
+                    <!-- add a next button here
                     <a href="/resultados/{{ item.0 }}" style="color: grey">
                         <span class="glyphicon glyphicon-chevron-right"> >>> </span>
-                    </a>
+                    </a>-->
                 </td>
             </tr>
         {% endfor %}

@@ -36,23 +36,20 @@
             </button>
             <div class="collapse navbar-collapse" >
                 <!-- Menu -->
-                {% if session.user_id %}
+                {% if session.developer_key %}
                     <ul class="breadcrumbs flat" >
                         <a class="{{ 'active' if page == 'index' else '' }}" >Iniciar</a>
                         <a class="{{ 'active' if page == 'coletar' else '' }}" >Coletar</a>
                         <a class="{{ 'active' if page == 'resultados' else '' }}" >Resultados</a></li>
+                        <a class="{{ 'active' if page == 'navegar' else '' }}" >Navegar</a></li>
                         <a class="{{ 'active' if page == 'analisar' else '' }}" >Analisar</a></li>
                         <a class="{{ 'active' if page == 'tabelas' else '' }}" >Tabelas</a></li>
                     </ul>
-                    <ul class="breadcrumbs2 flat2">
-                        <a href="/senha">Mudar Senha</a></li>
-                        <a href="/logout">Log Out</a></li>
-                    </ul>
-                {% else %}
+
                     <!--<ul class="breadcrumbs2 flat2">
                         <a href="/registrar">Registrar</a></li>
                         <a href="/login">Log In</a></li>-->
-                    </ul>
+                    
                 {% endif %}
             </div>
         </nav>

@@ -25,11 +25,13 @@
     <!-- Nova interface para coleta de Dados -->
     <hr>
 
-        <input type="radio" name="radio" value="query"> Pesquisa<br>
+        <input type="radio" name="radio" value="query"> Pesquisa por termo(s)<br>
         <br>
         <input autocomplete="off" autofocus class="form-control" name="query" placeholder="Termo de busca" type="text"><br><br>
-        <hr>
-        <input type="radio" name="radio" value="seed"> Seed<br>
+         OU
+        <br>
+        <br>
+        <input type="radio" name="radio" value="seed"> Pesquisa por seed<br>
         <br>
         <input autocomplete="off" autofocus class="form-control" name="videoid" placeholder="video_id" type="text"><br><br>
 
@@ -37,6 +39,6 @@
         <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="Profundidade (1-3)" type="text"><br><br>
         <input autocomplete="off" class="form-control" name="maxresults" placeholder="Resultados (1-50)" type="number"><br><br>
 
-        <button class="btn btn-primary" type="submit">Pesquisar</button>
+        <button class="btn btn-primary" type="submit">Coletar dados</button>
     </form>
 {% endblock %}

@@ -36,18 +36,19 @@
         <p style="text-align: left">É possível fazer uma coleta de dados a partir de um vídeo ou de um termo de busca. Os dados coletados podem ser visualizados em forma de lista ou de grafo. Também é possível fazer o download das tabelas.</p>
         <p style="text-align: left">O modo de coleta salva todos os dados de todos os vídes recomendados, enquando o de navegação coleta apenas o dos vídeos selecionados</p>
         <p style="text-align: left">Para utilizar entre com a sua chave da API abaixo. Para criar uma siga o tutorial <a href="https://developers.google.com/youtube/registering_an_application?hl=pt-br">aqui</a></p>
+        <br>
+        {% if not session.user_id %}
+        <form action="/" method="post">
+            <!--<input type="radio" name="mode" value="nav">Navegar<br>
+            <input type="radio" name="mode" value="col">Coletar<br>-->
 
-        {% if session.user_id %}
-            <form action="/" method="post">
-                <!--<input type="radio" name="mode" value="nav">Navegar<br>
-                <input type="radio" name="mode" value="col">Coletar<br>-->
-                <br>
-                <input autocomplete="off" class="form-control" name="newapi" placeholder="Chave da API" type="text"><br><br>
-                <button class="btn btn-primary" type="submit">Próximo</button>
-            </form>
-        {% else %}
+            <input autocomplete="off" class="form-control" name="newapi" placeholder="Chave da API" type="text"><br><br>
+            <button class="btn btn-primary" type="submit">Próximo</button>
+        </form>
+
+        <!--{% else %}
             <br>
-            <p>Para utilizar faça o <a href="/login">login</a> ou <a href="/registrar">registre-se</a></p>
+            <p>Para utilizar faça o <a href="/login">login</a> ou <a href="/registrar">registre-se</a></p>-->
         {% endif %}
 
     </div>

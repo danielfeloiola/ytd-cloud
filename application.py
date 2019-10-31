@@ -63,6 +63,7 @@ app.config["SESSION_PERMANENT"] = False
 
 
 # Cria uma class para os usuarios
+'''
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -75,7 +76,7 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.hash, password)
-
+'''
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -106,11 +107,13 @@ def index():
                                     msg="Forneça chave da API",
                                     page='index'
                                     )
+        # apaga a tabela - ou cria uma se não existir
+        apagar()
 
         # passa para a proxima fase
         return redirect("/coletar")
 
-
+'''
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Faz o log in"""
@@ -268,10 +271,10 @@ def senha():
     # carrega a pagina (get)
     else:
         return render_template("senha.html")
-
+'''
 
 @app.route("/coletar", methods=["GET", "POST"])
-@login_required
+#@login_required
 def coletar():
     """
     GET: Mostra a pagina com formulario para a coleta
@@ -296,7 +299,7 @@ def coletar():
         ids = []
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -330,7 +333,7 @@ def coletar():
         prof_amp = 0
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -418,7 +421,7 @@ def coletar():
                 videos = search('related', query, 1)
 
             elif selector == 'query':
-
+                print(session['developer_key'])
                 videos = search('query', query, 1)
 
         elif profundidade == '2':
@@ -476,7 +479,7 @@ def coletar():
 
 
 @app.route("/analisar")
-@login_required
+#@login_required
 def analisar():
     """
     Cria uma visualização usando os dados coletados
@@ -487,7 +490,7 @@ def analisar():
     videos = []
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -514,11 +517,10 @@ def analisar():
 
 
 
-@app.route("/resultados", methods=["GET", "POST"])
-@app.route("/resultados/<id>")
-@app.route("/resultados/<id>/<id2>")
-@login_required
-def resultados(id = None, id2 = None):
+@app.route("/resultados")
+
+#@login_required
+def resultados():
     """
     Cria uma pagina mostrando os videos coletados
     A funcao pode ou nao receber um video_id
@@ -528,250 +530,254 @@ def resultados(id = None, id2 = None):
     O modo POST mostra apenas os videos seeds
     """
 
-    if request.method =='GET':
-        # mostra os dados gerais
-        if id == None:
-            # le todos os dados da tabela de nos
-            # conta quantas vezes cada vídeo aparece
-            # cria uma lista sem elementos repetidos
 
-            # cria uma lista para armazenar dados
-            videos = []
-            edges = set()
-            recomendados = []
-            contador = Counter()
 
-            # nome do arquivo de nos
-            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+    # le todos os dados da tabela de nos
+    # conta quantas vezes cada vídeo aparece
+    # cria uma lista sem elementos repetidos
 
-            # abre o arquivo e le os dados
-            with open(nome_nodes, 'r') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
+    # cria uma lista para armazenar dados
+    videos = []
+    edges = set()
+    recomendados = []
+    contador = Counter()
 
-                for row in reader:
-                    # ignora o cabecalho
-                    if row[0] != 'video_id':
-                        # adiciona os videos a lista
-                        line = [row[0],
-                                row[1],
-                                row[2],
-                                row[4],
-                                row[5],
-                                row[6]
-                                ]
-                        videos.append(line)
+    # nome do arquivo de nos
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
-            # Agora com os edges
-            nome_edges = 'static/' + session['username'] + '-edges.csv'
+    # abre o arquivo e le os dados
+    with open(nome_nodes, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
 
-            # abre o arquivo e le os dados
-            with open(nome_edges, 'r') as csvfile2:
-                reader2 = csv.reader(csvfile2, delimiter=',')
+        for row in reader:
+            # ignora o cabecalho
+            if row[0] != 'video_id':
+                # adiciona os videos a lista
+                line = [row[0],
+                        row[1],
+                        row[2],
+                        row[4],
+                        row[5],
+                        row[6]
+                        ]
+                videos.append(line)
 
-                # remove o cabecalho pega os recomendados
-                for row in reader2:
-                    if row[0] != 'source':
-                        #if row[0] == id:
-                            # caso seja o id do video, pega os relacionados
-                        edges.add((row[0], row[2]))
+    # Agora com os edges
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
-            # faz a contagem
-            for entrada in edges:
-                contador[entrada[1]] += 1
+    # abre o arquivo e le os dados
+    with open(nome_edges, 'r') as csvfile2:
+        reader2 = csv.reader(csvfile2, delimiter=',')
 
-            lista_unica = []
+        # remove o cabecalho pega os recomendados
+        for row in reader2:
+            if row[0] != 'source':
+                #if row[0] == id:
+                    # caso seja o id do video, pega os relacionados
+                edges.add((row[0], row[2]))
+
+    # faz a contagem
+    for entrada in edges:
+        contador[entrada[1]] += 1
+
+    lista_unica = []
+    lista_final = []
+
+    # retira videos repetidos
+    for video in videos:
+        if video[0] not in lista_unica:
+            # o n_video conta o numero de vezes que cada
+            # video aparece no dataset
+            n_video = video
+
+            n_video.append(contador[video[0]])
+            #n_video.append(contador[video])
+
+            lista_final.append(n_video)
+            lista_unica.append(video[0])
+
+    # verifica se há dados
+    if len(lista_final) == 0:
+        return apology_two("Não há dados para mostrar",
+                            page='resultados'
+                            )
+
+    # render the page
+    return render_template("resultados.html",
+                            videos=lista_final,
+                            page='resultados'
+                            )
+
+
+@app.route("/navegar")
+@app.route("/navegar/<id>")
+@app.route("/navegar/<id>/<id2>")
+def navegar(id = None, id2 = None):
+
+    # ESSA FUNÇÃO VAI PASSAR A PROCURAR APENAS NO NIVEL 2! if row[7] == '1':
+    if id != None:
+
+        if id2 != None:
+            #pass
+
+            videos = [] # seeds
+            videos2 = [] # relacionados
+            videos3= [] # agora essa é a lista com os dados dos videos
+            # usada para remover itens duplicados
+            checklist = []
+            checklist2 = []
+            # lista retornada no final da função
             lista_final = []
 
-            # retira videos repetidos
+            #nome dos arquivos
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+
+            # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
+            # abre o arquivo e le os dados
+            with open(nome_edges, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+
+                # remove o cabecalho e procura o id correto
+                for row in reader:
+                    if row[0] != 'source':
+                        if row[0] == id:
+                            video_name1=row[1]
+                            # caso seja o id do video, pega os relacionados
+                            videos.append(row[2])
+
+
+            with open(nome_edges, 'r') as csvfile:
+                reader2 = csv.reader(csvfile, delimiter=',')
+
+                # Procurar o ID 2 na lista de relacionados do ID 1
+                # REPETIR esse procedimento para pegar os relacionados ao ID 2
+                for row2 in reader2:
+
+                    # remove o cabecalho e procura o id correto
+                    if row2[0] in videos:
+                        if row2[0] == id2:
+                            video_name2=row2[1]
+                            if row2[2] not in checklist2:
+                                # caso seja o id do video, pega relacionados
+                                videos2.append(row2[2])
+                                checklist2.append(row2[2])
+
+
+            # 2 - E AGORA OS DADOS DESSES RELACIONADOS DE RELACIONADOS
+            # abre o arquivo e le os dados
+            with open(nome_nodes, 'r') as csvfile2:
+                reader3 = csv.reader(csvfile2, delimiter=',')
+
+                # pega os dados dos videos relacionados
+                for row3 in reader3:
+                    if row3[0] != 'video_id':
+                        if row3[0] in videos2:
+                            if row3[0] not in checklist:
+                                line = [row3[0],
+                                        row3[1],
+                                        row3[2],
+                                        row3[4],
+                                        row3[5],
+                                        row3[6],
+                                        row3[7]
+                                        ]
+                                videos3.append(line)
+                                checklist.append(row3[0])
+
+
+            if len(videos3) == 0:
+                msg = "não há dados de relacionados para este video"
+                return render_template("navegar-sem-dados.html", msg=msg, page='navegar')
+
+            return render_template("navegar2.html",
+                                    profundidade = '3',
+                                    videos=videos3,
+                                    id1=id,
+                                    id2=id2,
+                                    video_name1=video_name1,
+                                    video_name2=video_name2,
+                                    page='navegar'
+                                    )
+
+
+
+        # PARA A BUSCA COM APENAS 1 ID
+        else:
+            videos = []
+            videos2 = []
+            checklist = []
+            lista_final = []
+            video_name = ''
+
+            #nome do arquivo
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+
+            # abre o arquivo e le os dados
+            with open(nome_edges, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+
+                # remove o cabecalho e procura o id correto
+                for row in reader:
+                    if row[0] != 'source':
+                        if row[0] == id:
+                            # caso seja o id do video, pega os relacionados
+                            videos.append(row[2])
+                            video_name = row[1]
+
+            # variavel com o nome do arquivo
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+
+            # abre o arquivo e le os dados
+            with open(nome_nodes, 'r') as csvfile2:
+                reader2 = csv.reader(csvfile2, delimiter=',')
+
+                # pega os dados dos videos relacionados
+                for row in reader2:
+                    if row[0] != 'video_id':
+                        if row[0] in videos:
+                            if row[0] not in checklist:
+                                line = [row[0],
+                                        row[1],
+                                        row[2],
+                                        row[4],
+                                        row[5],
+                                        row[6],
+                                        row[7]
+                                        ]
+                                videos2.append(line)
+                                checklist.append(row[0])
+
+            #print(videos2)
             for video in videos:
-                if video[0] not in lista_unica:
-                    # o n_video conta o numero de vezes que cada
-                    # video aparece no dataset
-                    n_video = video
+                for v2 in videos2:
+                    if video == v2[0]:
+                        linha = v2
+                        lista_final.append(linha)
 
-                    n_video.append(contador[video[0]])
-                    #n_video.append(contador[video])
-
-                    lista_final.append(n_video)
-                    lista_unica.append(video[0])
-
-            # verifica se há dados
             if len(lista_final) == 0:
-                return apology_two("Não há dados para mostrar",
-                                    page='resultados'
-                                    )
+                msg = "não há dados de relacionados para este video"
+                return render_template("navegar-sem-dados.html",
+                                        msg=msg,
+                                        page='navegar'
+                                        )
 
-            # render the page
-            return render_template("resultados.html",
+            return render_template("navegar1.html",
+                                    profundidade = '2',
                                     videos=lista_final,
-                                    page='resultados'
+                                    id1=id,
+                                    video_name=video_name,
+                                    page='navegar'
                                     )
-
-
-        # ESSA FUNÇÃO VAI PASSAR A PROCURAR APENAS NO NIVEL 2! if row[7] == '1':
-        elif id != None:
-
-            if id2 != None:
-                #pass
-
-                videos = [] # seeds
-                videos2 = [] # relacionados
-                videos3= [] # agora essa é a lista com os dados dos videos
-                # usada para remover itens duplicados
-                checklist = []
-                checklist2 = []
-                # lista retornada no final da função
-                lista_final = []
-
-                #nome dos arquivos
-                nome_edges = 'static/' + session['username'] + '-edges.csv'
-                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-
-                # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
-                # abre o arquivo e le os dados
-                with open(nome_edges, 'r') as csvfile:
-                    reader = csv.reader(csvfile, delimiter=',')
-
-                    # remove o cabecalho e procura o id correto
-                    for row in reader:
-                        if row[0] != 'source':
-                            if row[0] == id:
-                                video_name1=row[1]
-                                # caso seja o id do video, pega os relacionados
-                                videos.append(row[2])
-
-
-                with open(nome_edges, 'r') as csvfile:
-                    reader2 = csv.reader(csvfile, delimiter=',')
-
-                    # Procurar o ID 2 na lista de relacionados do ID 1
-                    # REPETIR esse procedimento para pegar os relacionados ao ID 2
-                    for row2 in reader2:
-
-                        # remove o cabecalho e procura o id correto
-                        if row2[0] in videos:
-                            if row2[0] == id2:
-                                video_name2=row2[1]
-                                if row2[2] not in checklist2:
-                                    # caso seja o id do video, pega relacionados
-                                    videos2.append(row2[2])
-                                    checklist2.append(row2[2])
-
-
-                # 2 - E AGORA OS DADOS DESSES RELACIONADOS DE RELACIONADOS
-                # abre o arquivo e le os dados
-                with open(nome_nodes, 'r') as csvfile2:
-                    reader3 = csv.reader(csvfile2, delimiter=',')
-
-                    # pega os dados dos videos relacionados
-                    for row3 in reader3:
-                        if row3[0] != 'video_id':
-                            if row3[0] in videos2:
-                                if row3[0] not in checklist:
-                                    line = [row3[0],
-                                            row3[1],
-                                            row3[2],
-                                            row3[4],
-                                            row3[5],
-                                            row3[6],
-                                            row3[7]
-                                            ]
-                                    videos3.append(line)
-                                    checklist.append(row3[0])
-
-
-                if len(videos3) == 0:
-                    msg = "não há dados de relacionados para este video"
-                    return render_template("resultadosnd.html", msg=msg, page='resultados')
-
-                return render_template("resultados3.html",
-                                        profundidade = '3',
-                                        videos=videos3,
-                                        id1=id,
-                                        id2=id2,
-                                        video_name1=video_name1,
-                                        video_name2=video_name2,
-                                        page='resultados'
-                                        )
-
-
-
-            # PARA A BUSCA COM APENAS 1 ID
-            else:
-                videos = []
-                videos2 = []
-                checklist = []
-                lista_final = []
-                video_name = ''
-
-                #nome do arquivo
-                nome_edges = 'static/' + session['username'] + '-edges.csv'
-
-                # abre o arquivo e le os dados
-                with open(nome_edges, 'r') as csvfile:
-                    reader = csv.reader(csvfile, delimiter=',')
-
-                    # remove o cabecalho e procura o id correto
-                    for row in reader:
-                        if row[0] != 'source':
-                            if row[0] == id:
-                                # caso seja o id do video, pega os relacionados
-                                videos.append(row[2])
-                                video_name = row[1]
-
-                # variavel com o nome do arquivo
-                nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-
-                # abre o arquivo e le os dados
-                with open(nome_nodes, 'r') as csvfile2:
-                    reader2 = csv.reader(csvfile2, delimiter=',')
-
-                    # pega os dados dos videos relacionados
-                    for row in reader2:
-                        if row[0] != 'video_id':
-                            if row[0] in videos:
-                                if row[0] not in checklist:
-                                    line = [row[0],
-                                            row[1],
-                                            row[2],
-                                            row[4],
-                                            row[5],
-                                            row[6],
-                                            row[7]
-                                            ]
-                                    videos2.append(line)
-                                    checklist.append(row[0])
-
-                #print(videos2)
-                for video in videos:
-                    for v2 in videos2:
-                        if video == v2[0]:
-                            linha = v2
-                            lista_final.append(linha)
-
-                if len(lista_final) == 0:
-                    msg = "não há dados de relacionados para este video"
-                    return render_template("resultadosnd.html",
-                                            msg=msg,
-                                            page='resultados'
-                                            )
-
-                return render_template("resultados2.html",
-                                        profundidade = '2',
-                                        videos=lista_final,
-                                        id1=id,
-                                        video_name=video_name,
-                                        page='resultados'
-                                        )
 
     # quando o usuario clica no botão de seeds (POST)
-    elif request.method =='POST':
+    else:
 
         # lista de videos seed - serao mostrados na pagina
         videos = []
 
         # variavel com o nome do arquivo
-        nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -796,19 +802,19 @@ def resultados(id = None, id2 = None):
         # verifica se há dados
         if len(videos) == 0:
             return apology_two("Não há dados para mostrar",
-                                page='resultados'
+                                page='navegar'
                                 )
 
         # renderiza a pagina
-        return render_template("resultados1.html",
+        return render_template("navegar.html",
                                 videos = videos,
                                 profundidade = '1 (seeds)',
-                                page='resultados'
+                                page='navegar'
                                 )
 
 
 @app.route("/tabelas")
-@login_required
+#@login_required
 def tabelas():
     """
     Renderiza uma página para baixar as tabelas
@@ -816,8 +822,8 @@ def tabelas():
 
     # mostra a pagina
     #if request.method == "GET":
-    nodes = 'static/' + session['username'] + '-nodes.csv'
-    edges = 'static/' + session['username'] + '-edges.csv'
+    nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    edges = 'static/' + session['developer_key'] + '-edges.csv'
     return render_template("tabelas.html",
                             nodes=nodes,
                             edges=edges,
@@ -839,7 +845,7 @@ def confirma():
 
 
 @app.route("/apagar")
-@login_required
+#@login_required
 def apagar():
     """
     Apaga os dados salvos na tabela
@@ -849,8 +855,8 @@ def apagar():
     DICT.clear()
 
     # configura os nomes dos arquivos
-    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-    nome_edges = 'static/' + session['username'] + '-edges.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # cria um novo arquivo de nodes
     with open(nome_nodes, 'w', newline = '', encoding = 'utf8') as csvfile1:
@@ -899,7 +905,7 @@ def get_nodes():
     node_check = []
 
     # nome do arquivo
-    nome_nodes = 'static/' + session['username'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -915,7 +921,7 @@ def get_nodes():
                 #node_check.append(row[0])
 
     # Agora com os edges
-    nome_edges = 'static/' + session['username'] + '-edges.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1012,7 +1018,7 @@ def get_edges():
     edges = []
 
     # nome do arquivo de edges
-    nome_edges = 'static/' + session['username'] + '-edges.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1061,6 +1067,9 @@ def search(mode, query, profundidade):
     # aviavel usada para contar a quantidade de
     # respostas em cada chamada da api
     contador_loop = 0
+
+    #test
+    session['developer_key']
 
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
@@ -1158,8 +1167,8 @@ def search(mode, query, profundidade):
             # verifica se o usuário prefere se os dados sejam salvos
             #if savemode == True:
 
-            nome_nodes = 'static/' + session['username'] + '-nodes.csv'
-            nome_edges = 'static/' + session['username'] + '-edges.csv'
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
             if mode == 'related':
                 # adiciona o node a tabela de nodes
