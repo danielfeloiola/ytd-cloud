@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Navegar (2)
+{% endblock %}
+
+{% block main %}
+
+<div>
+    <a href="/resultados">
+        <span class="left"></span>
+        <span class="glyphicon glyphicon-menu-left"></span>
+    </a>
+</div>
+
+<div>
+    <a href="/analisar">
+        <span class="right"></span>
+        <span class="glyphicon glyphicon-menu-right"></span>
+    </a>
+</div>
+
+    <div id="main">
+
+        <!--<ul>-->
+        <table class="center">
+            <tr>
+                <!--<form action="/resultados" method="get">
+                    <input type="submit" value="ver dados gerais" />
+
+                </form>-->
+                Profundidade: {{profundidade}}
+            </tr>
+
+        <tr>
+            <td colspan="3">
+            {% if id1 %}
+            Nível 1:
+            <br>
+            {{ video_name1 }}
+            <br>
+            <a href="https://youtu.be/{{ id1 }}">youtu.be/{{ id1 }}</a>
+
+            {% endif %}
+
+            <td>
+        </tr>
+
+        <tr>
+            <td colspan="3">
+            {% if id2 %}
+            Nível 2:
+            <br>
+            {{ video_name2 }}
+            <br>
+            <a href="https://youtu.be/{{ id2 }}">youtu.be/{{ id2 }}</a>
+
+            {% endif %}
+
+            <td>
+        </tr>
+
+
+        {% for item in videos %}
+            <tr>
+                <td>
+                <a onclick="history.back()" style="color: grey; text-decoration: none;">
+                    <span class="glyphicon glyphicon-chevron-right"> <<< </span>
+                </a>
+                <td>
+                <td>
+                    <!-- Contador de aparicoes -->
+                    <li>{{ loop.index }}.</li>
+                </td>
+                <td>
+                    <!-- thumbnail -->
+                    <img src="{{ item.4 }}" alt="thumbnail">
+                </td>
+                <td>
+                    <!-- informacoes do video -->
+                    <li>{{ item.1 }}</li>
+                    <a href="https://youtu.be/{{ item.0 }}"><li>youtu.be/{{ item.0 }}</li></a>
+                    <li>{{ item.2 }}</li>
+                    <li>{{ item.5 }}</li>
+                    <!--<li>{{ item.6 }}</li>-->
+                </td>
+                <td>
+                    <!-- add a next button here
+                    <a href="/resultados/{{ item.0 }}" style="color: grey">
+                        <span class="glyphicon glyphicon-chevron-right"> >>> </span>
+                    </a>-->
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+{% endblock %}

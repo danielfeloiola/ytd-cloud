@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Navegar
+{% endblock %}
+
+{% block main %}
+
+    <div>
+        <a href="/resultados">
+            <span class="left"></span>
+            <span class="glyphicon glyphicon-menu-left"></span>
+        </a>
+    </div>
+
+    <div>
+        <a href="/analisar">
+            <span class="right"></span>
+            <span class="glyphicon glyphicon-menu-right"></span>
+        </a>
+    </div>
+
+    <div id="main" class="center">
+
+
+        <h3 style="text-align:center">{{ msg }}</h3>
+        <br>
+        <br>
+
+        <a onclick="history.back()" style="color: grey; text-decoration: none; ">
+            <p style="text-align:center"> Voltar </p>
+        </a>
+
+
+    </div>
+{% endblock %}
