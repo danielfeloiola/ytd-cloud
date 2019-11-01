@@ -346,7 +346,7 @@ def coletar():
                     numeros.append(row[7])
 
 
-        if '2' in numeros:
+        if '1' in numeros:
             with open(nome_nodes, 'r') as csvfile2:
                 reader2 = csv.reader(csvfile2, delimiter=',')
 
