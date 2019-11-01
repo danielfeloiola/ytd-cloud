@@ -313,10 +313,10 @@ def coletar():
                     ids.append(row[0])
 
 
-        if '1' in numeros:
-            if '2' not in numeros:
+        if '0' in numeros:
+            if '1' not in numeros:
                 return render_template("coletar2.html", page=page)
-            if '3' not in numeros:
+            if '2' not in numeros:
                 return render_template("coletar2.html", page=page)
             else:
                 return apology_three("Não é possível coletar mais dados", page=page)
@@ -353,7 +353,7 @@ def coletar():
                 for row2 in reader2:
                     if row2[7] == '2':
                         ids.append(row2[0])
-                        prof_amp = 3
+                        prof_amp = 2
         else:
             with open(nome_nodes, 'r') as csvfile2:
                 reader2 = csv.reader(csvfile2, delimiter=',')
@@ -361,7 +361,7 @@ def coletar():
                 for row2 in reader2:
                     if row2[7] == '1':
                         ids.append(row2[0])
-                        prof_amp = 2
+                        prof_amp = 1
 
         # lista final a ser retornada
         final_video_list = []
@@ -418,28 +418,28 @@ def coletar():
         if profundidade == '1':
             if selector == 'seed':
 
-                videos = search('related', query, 1)
+                videos = search('related', query, 0)
 
             elif selector == 'query':
                 print(session['developer_key'])
-                videos = search('query', query, 1)
+                videos = search('query', query, 0)
 
         elif profundidade == '2':
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
-                videos = search('related', query, 1)
+                videos = search('related', query, 0)
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], 2)
+                    videos2 = search('related', video[0], 1)
 
             elif selector == 'query': # level 1
-                videos = search('query', query, 1)
+                videos = search('query', query, 0)
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], 2)
+                    videos2 = search('related', video[0], 1)
 
 
         elif profundidade == '3':
@@ -448,30 +448,30 @@ def coletar():
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
-                videos = search('related', query, 1)
+                videos = search('related', query, 0)
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # level 2
-                    videos2 = search('related', video[0], 2)
+                    videos2 = search('related', video[0], 1)
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
-                        videos3 = search('related', vd[0], 3)
+                        videos3 = search('related', vd[0], 2)
 
             elif selector == 'query': # level 1
-                videos = search('query', query, 1)
+                videos = search('query', query, 0)
 
                 # itera por cada resultado e faz uma busca de relacionados
                 for video in videos: # Level 2
-                    videos2 = search('related', video[0], 2)
+                    videos2 = search('related', video[0], 1)
                     level_2 += videos2
 
                     # itera por cada resultado e faz uma busca de relacionados
                     # para cada um mais uma vez
                     for vd in level_2: # level 3
-                        videos3 = search('related', vd[0], 3)
+                        videos3 = search('related', vd[0], 2)
 
 
         # renderiza a pagina
@@ -691,7 +691,7 @@ def navegar(id = None, id2 = None):
                 return render_template("navegar-sem-dados.html", msg=msg, page='navegar')
 
             return render_template("navegar2.html",
-                                    profundidade = '3',
+                                    profundidade = '2',
                                     videos=videos3,
                                     id1=id,
                                     id2=id2,
@@ -763,7 +763,7 @@ def navegar(id = None, id2 = None):
                                         )
 
             return render_template("navegar1.html",
-                                    profundidade = '2',
+                                    profundidade = '1',
                                     videos=lista_final,
                                     id1=id,
                                     video_name=video_name,
@@ -808,7 +808,7 @@ def navegar(id = None, id2 = None):
         # renderiza a pagina
         return render_template("navegar.html",
                                 videos = videos,
-                                profundidade = '1 (seeds)',
+                                profundidade = '0 - seeds',
                                 page='navegar'
                                 )
 
@@ -913,7 +913,7 @@ def get_nodes():
         for row in reader:
             if row[0] != 'video_id':
                 #if row[0] not in node_check:
-                if row[7] == '1':
+                if row[7] == '0':
                     line = [row[0], row[1], '#095F95']
                 else:
                     line = [row[0], row[1], '#000000']
