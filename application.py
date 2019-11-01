@@ -415,7 +415,7 @@ def coletar():
 
 
         # varia de acordo com a profundidade
-        if profundidade == '1':
+        if profundidade == '0':
             if selector == 'seed':
 
                 videos = search('related', query, 0)
@@ -424,7 +424,7 @@ def coletar():
                 print(session['developer_key'])
                 videos = search('query', query, 0)
 
-        elif profundidade == '2':
+        elif profundidade == '1':
 
             # Faz a busca e coloca os resultados na lista
             if selector == 'seed': # level 1
@@ -442,7 +442,7 @@ def coletar():
                     videos2 = search('related', video[0], 1)
 
 
-        elif profundidade == '3':
+        elif profundidade == '2':
 
             level_2 = []
 
