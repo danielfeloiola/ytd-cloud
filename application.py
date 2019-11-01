@@ -786,7 +786,7 @@ def navegar(id = None, id2 = None):
             # remove o cabecalho e procura videos no nivel 1
             for row in reader:
                 if row[7] != 'depht':
-                    if row[7] == '1':
+                    if row[7] == '0':
 
                         # adiciona os dados a lista que ira para a pagina
                         line = [row[0],
