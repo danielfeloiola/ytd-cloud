@@ -346,12 +346,12 @@ def coletar():
                     numeros.append(row[7])
 
 
-        if '0' in numeros:
+        if '1' in numeros:
             with open(nome_nodes, 'r') as csvfile2:
                 reader2 = csv.reader(csvfile2, delimiter=',')
 
                 for row2 in reader2:
-                    if row2[7] == '2':
+                    if row2[7] == '1':
                         ids.append(row2[0])
                         prof_amp = 2
         else:
@@ -359,7 +359,7 @@ def coletar():
                 reader2 = csv.reader(csvfile2, delimiter=',')
 
                 for row2 in reader2:
-                    if row2[7] == '1':
+                    if row2[7] == '0':
                         ids.append(row2[0])
                         prof_amp = 1
 
