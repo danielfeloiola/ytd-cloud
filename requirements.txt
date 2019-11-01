@@ -10,3 +10,5 @@ werkzeug
 flask_socketio
 flask_sqlalchemy
 psycopg2-binary
+pyopenssl
+
