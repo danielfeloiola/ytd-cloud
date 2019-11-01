@@ -56,7 +56,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 # secret key
-app.config['SECRET_KEY'] = os.environ['KEY']
+app.config['SECRET_KEY'] = os.getenv['KEY']
 
 # teste da session
 app.config["SESSION_PERMANENT"] = False
