@@ -478,45 +478,6 @@ def coletar():
         return redirect("/resultados")
 
 
-@app.route("/analisar")
-#@login_required
-def analisar():
-    """
-    Cria uma visualização usando os dados coletados
-    a parte que controla os dados está em get_nodes e get_edges
-    os dados são passados para a pagina via SocketIO
-    """
-
-    videos = []
-
-    # nome do arquivo de nos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-
-    # abre o arquivo e le os dados
-    with open(nome_nodes, 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-
-        for row in reader:
-            # ignora o cabecalho
-            if row[0] != 'video_id':
-                # adiciona os videos a lista
-                line = [row[0],
-                        row[1],
-                        row[2],
-                        row[4],
-                        row[5],
-                        row[6]
-                        ]
-                videos.append(line)
-
-    if len(videos) == 0:
-        return apology_two("Não há dados para mostrar", page='analisar')
-
-    # Renderiza a página
-    return render_template("analisar.html", page='analisar')
-
-
-
 @app.route("/resultados")
 
 #@login_required
@@ -607,6 +568,8 @@ def resultados():
                             videos=lista_final,
                             page='resultados'
                             )
+
+
 
 
 @app.route("/navegar")
@@ -813,6 +776,47 @@ def navegar(id = None, id2 = None):
                                 )
 
 
+
+@app.route("/analisar")
+#@login_required
+def analisar():
+    """
+    Cria uma visualização usando os dados coletados
+    a parte que controla os dados está em get_nodes e get_edges
+    os dados são passados para a pagina via SocketIO
+    """
+
+    videos = []
+
+    # nome do arquivo de nos
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+
+    # abre o arquivo e le os dados
+    with open(nome_nodes, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+
+        for row in reader:
+            # ignora o cabecalho
+            if row[0] != 'video_id':
+                # adiciona os videos a lista
+                line = [row[0],
+                        row[1],
+                        row[2],
+                        row[4],
+                        row[5],
+                        row[6]
+                        ]
+                videos.append(line)
+
+    if len(videos) == 0:
+        return apology_two("Não há dados para mostrar", page='analisar')
+
+    # Renderiza a página
+    return render_template("analisar.html", page='analisar')
+
+
+
+
 @app.route("/tabelas")
 #@login_required
 def tabelas():
@@ -822,11 +826,63 @@ def tabelas():
 
     # mostra a pagina
     #if request.method == "GET":
-    nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_gdf = 'static/' + session['developer_key'] + '-gdf.gdf'
+
+
+
+    ############################################################################
+    # CRIA UMA TABELA EM GDF
+    ############################################################################
+    check = []
+
+    gdf_file = open(nome_gdf, 'w')
+    gdfwriter = csv.writer(gdf_file, lineterminator = '\n')
+    gdfwriter.writerow(['nodedef>name VARCHAR','label VARCHAR'])
+
+    nodes_csv = open(nome_nodes, 'r')
+    reader_nodes = csv.reader(nodes_csv, delimiter=',')
+    #with open(nome_nodes, 'r') as csvfile:
+
+
+    for row in reader_nodes:
+        # ignora o cabecalho
+        if row[0] != 'video_id':
+            # adiciona os videos a lista
+            if row[0] not in check:
+                line = [row[0],
+                        row[1]
+                        ]
+                gdfwriter.writerow(line)
+                check.append(row[0])
+                #videos.append(line)
+
+    gdfwriter.writerow(['edgedef>node1 VARCHAR','node2 VARCHAR','directed BOOLEAN'])
+
+    edges_csv = open(nome_edges, 'r')
+    reader_edges = csv.reader(edges_csv, delimiter=',')
+    #with open(nome_nodes, 'r') as csvfile:
+
+
+    for row in reader_edges:
+        # ignora o cabecalho
+        if row[0] != 'source':
+            # adiciona os videos a lista
+
+            line_edge = [row[0],
+                         row[2],
+                         'true']
+            gdfwriter.writerow(line_edge)
+
+
+
+
+
     return render_template("tabelas.html",
-                            nodes=nodes,
-                            edges=edges,
+                            nodes=nome_nodes,
+                            edges=nome_edges,
+                            gdf=nome_gdf,
                             page='tabelas'
                             )
 
@@ -857,6 +913,8 @@ def apagar():
     # configura os nomes dos arquivos
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_gdf = 'static/' + session['developer_key'] + '-gdf.csv'
+
 
     # cria um novo arquivo de nodes
     with open(nome_nodes, 'w', newline = '', encoding = 'utf8') as csvfile1:
@@ -879,6 +937,12 @@ def apagar():
                           'target',
                           'target_name'
                           ])
+
+    with open(nome_gdf, 'w', newline = '', encoding = 'utf8') as csvfile3:
+        writer3 = csv.writer(csvfile3, lineterminator = '\n')
+        writer3.writerow(['nodedef> name', 'label'])
+
+
 
     # mostra mensagem se sucesso
     #return render_template("tabelas.html", msg="Dados das tabelas apagados")
