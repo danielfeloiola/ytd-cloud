@@ -81,12 +81,12 @@ def index():
 
         # guarda a API ou gera um erro se não houver API
         if api_field != None and api_field !='':
-            session['developer_key'] = api_field
+            session['user_id'] = api_field
 
             # gera um id usando caracteres aleatorios
-            #letters = string.ascii_letters
-            #id = ''.join(random.choice(letters) for i in range(20))
-            #session['user_id'] = id
+            letters = string.ascii_letters
+            id = ''.join(random.choice(letters) for i in range(20))
+            session['user_id'] = id
         else:
             return render_template("index.html",
                                     msg="Forneça chave da API",
@@ -144,7 +144,7 @@ def coletar():
         ids = []
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -178,7 +178,7 @@ def coletar():
         prof_amp = 0
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -345,7 +345,7 @@ def resultados():
     contador = Counter()
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -365,7 +365,7 @@ def resultados():
                 videos.append(line)
 
     # Agora com os edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -434,8 +434,8 @@ def navegar(id = None, id2 = None):
             lista_final = []
 
             #nome dos arquivos
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
             # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
             # abre o arquivo e le os dados
@@ -515,7 +515,7 @@ def navegar(id = None, id2 = None):
             video_name = ''
 
             #nome do arquivo
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
             # abre o arquivo e le os dados
             with open(nome_edges, 'r') as csvfile:
@@ -530,7 +530,7 @@ def navegar(id = None, id2 = None):
                             video_name = row[1]
 
             # variavel com o nome do arquivo
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
             # abre o arquivo e le os dados
             with open(nome_nodes, 'r') as csvfile2:
@@ -581,7 +581,7 @@ def navegar(id = None, id2 = None):
         videos = []
 
         # variavel com o nome do arquivo
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -630,7 +630,7 @@ def analisar():
     videos = []
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -678,9 +678,9 @@ def arquivogdf():
 
     # mostra a pagina
     #if request.method == "GET":
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' + session['developer_key'] + '-gdf.gdf'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_gdf = 'static/' + session['user_id'] + '-gdf.gdf'
 
     # CRIA UMA TABELA EM GDF
 
@@ -741,7 +741,7 @@ def nodes():
 
     # mostra a pagina
     #if request.method == "GET":
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
     #nome_novo_arquivo = 'static/nodes.csv'
     os.popen('cp nome_nodes static/nodes.csv')
 
@@ -758,7 +758,7 @@ def edges():
 
     # mostra a pagina
     #if request.method == "GET":
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
     #nome_novo_arquivo = 'static/edges.csv'
     os.popen('cp nome_edges static/edges.csv')
 
@@ -791,9 +791,9 @@ def apagar():
     DICT.clear()
 
     # configura os nomes dos arquivos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' + session['developer_key'] + '-gdf.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_gdf = 'static/' + session['user_id'] + '-gdf.csv'
 
 
     # cria um novo arquivo de nodes
@@ -849,7 +849,7 @@ def get_nodes():
     node_check = []
 
     # nome do arquivo
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -865,7 +865,7 @@ def get_nodes():
                 #node_check.append(row[0])
 
     # Agora com os edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -962,7 +962,7 @@ def get_edges():
     edges = []
 
     # nome do arquivo de edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1015,7 +1015,7 @@ def search(mode, query, profundidade):
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
                     YOUTUBE_API_VERSION,
-                    developerKey=session['developer_key']
+                    developerKey=session['user_id']
                     )
 
     # lista com a resposta da api que será retornada
@@ -1094,8 +1094,8 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["title"]
                         ]
 
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
             if mode == 'related':
                 # adiciona o node a tabela de nodes
