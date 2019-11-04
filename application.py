@@ -2,13 +2,13 @@
 import csv
 import os
 from collections import Counter
-from cs50 import SQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
+#from cs50 import SQL
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
-from tempfile import mkdtemp
+#from flask_sqlalchemy import SQLAlchemy
+#from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-from werkzeug.security import check_password_hash, generate_password_hash
+#from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
 from helpers import apology, apology_two, apology_three, login_required
 
@@ -16,6 +16,10 @@ from helpers import apology, apology_two, apology_three, login_required
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
+
+import random
+import string
+from datetime import timedelta
 
 
 
@@ -42,41 +46,19 @@ socketio = SocketIO(app)
 # auto-reload
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-# response cache
-#@app.after_request
-#def after_request(response):
-#    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-#    response.headers["Expires"] = 0
-#    response.headers["Pragma"] = "no-cache"
-#    return response
-
-# Configura o database SQL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-db = SQLAlchemy(app)
-
 # secret key
 app.config["SECRET_KEY"] = os.getenv("KEY")
 
 # teste da session
-app.config["SESSION_PERMANENT"] = False
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
 
-
-# Cria uma class para os usuarios
-'''
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    hash = db.Column(db.String(80), unique=True, nullable=False)
-
-
-    def __init__(self, username, hash):
-        self.username = username
-        self.hash = hash
-
-    def check_password(self, password):
-        return check_password_hash(self.hash, password)
-'''
+# response cache
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -102,176 +84,41 @@ def index():
         # guarda a API ou gera um erro se não houver API
         if api_field != None and api_field !='':
             session['developer_key'] = api_field
+
+            # gera um id usando caracteres aleatorios
+            letters = string.ascii_letters
+            id = ''.join(random.choice(letters) for i in range(20))
+            session['user_id'] = id
         else:
             return render_template("index.html",
                                     msg="Forneça chave da API",
                                     page='index'
                                     )
+
+        # configura a duração da session
+        app.config["SESSION_PERMANENT"] = True
+
         # apaga a tabela - ou cria uma se não existir
         apagar()
 
         # passa para a proxima fase
         return redirect("/coletar")
 
-'''
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Faz o log in"""
-
-    # apaga dados da sessão
-    session.clear()
-
-    # Qaundo receber os dados (via POST)
-    if request.method == "POST":
-
-        #pega os dados
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        # Verifica se há um nome de usuário
-        if not username:
-            return apology("usuário vazio", 403)
-
-        # Verifica se realmente há uma senha
-        elif not password:
-            return apology("senha vazia", 403)
-
-        # Busca o usuario no banco de dados e verifica a senha
-        user = User.query.filter_by(username=username).first()
-        password_check = user.check_password(password)
-
-        # Verifica se as senhas conferem
-        if password_check == True:
-            session["user_id"] = user.id
-            session["username"] = user.username
-        else:
-            return apology("usuário ou senha inválida", 403)
-
-        # Roda a função apagar para criar tabelas
-        apagar()
-
-        # Redireciona para a homepage
-        return redirect("/")
-
-    # Se o usuário está procurando o formulario - GET
-    else:
-        return render_template("login.html")
-
-
 @app.route("/logout")
 @login_required
 def logout():
     """Faz o logout"""
 
-    # Apaga a sessao
-    session.clear()
-
     # apaga os Dados
     apagar()
+
+    # Apaga a sessao
+    session.clear()
 
     # Redireciona para a pagina inicial
     return redirect("/")
 
-@app.route("/registrar", methods=["GET", "POST"])
-def registrar():
-    """Register user"""
 
-     # limpa os dados da sessão
-    session.clear()
-
-    # Ao enviar dados via POST
-    if request.method == "POST":
-
-        # pega os dados da pagina
-        username = request.form.get("username")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
-
-        # Verifica se ha um nome de usuario
-        if not request.form.get("username"):
-            return apology("crie um nome de usuário", 403)
-
-        # Verifica se ha uma senha
-        elif not request.form.get("password"):
-            return apology("crie uma senha", 403)
-
-         # Verifica se as senhas conferem
-        if password != confirmation:
-            return apology("Senhas diferentes", 403)
-
-        # criptografia da senha
-        hash_password = generate_password_hash(password)
-
-        # verifica se já existe um usuário com esse username no banco de dados
-        username_query = User.query.filter_by(username=username).first()
-
-        # Se for um nome unico adiciona ao banco, senao mostra o erro
-        if not username_query:
-            new_user = User(username, hash_password)
-            db.session.add(new_user)
-            db.session.commit()
-        else:
-            return apology("usuario ja existe", 403)
-
-        # Busca o usuario no banco de dados
-        user = User.query.filter_by(username=username).first()
-
-        # faz o login
-        session["user_id"] = user.id
-        session["username"] = user.username
-
-        # roda a funcao apagar para criar tabelas
-        apagar()
-
-        # redireciona para a home page
-        return redirect("/")
-
-    # Se o usuário esta porcurando a pagina (via GET)
-    else:
-        return render_template("registrar.html")
-
-
-@app.route("/senha", methods=["GET", "POST"])
-@login_required
-def senha():
-    """Muda a senha"""
-
-    if request.method == "POST":
-
-        # Pega as senhas
-        current_password = request.form.get("current-password")
-        new_password = request.form.get("new-password")
-        new_password_check = request.form.get("new-password-check")
-
-        # Verifica se a senha não está em branco
-        if not new_password:
-            return apology("Coloque uma senha nova", 403)
-
-        # verifica se as novas senhas sao iguais
-        if new_password != new_password_check:
-            return apology("Senhas diferentes", 403)
-
-        # encontra o usuario no banco de dados
-        user = User.query.filter_by(id=session["user_id"]).first()
-        check_pw = user.check_password(current_password)
-
-        # se a sena atual for correta:
-        if check_pw == True:
-
-            # criptografa a senha
-            user.hashp = generate_password_hash(new_password)
-
-            # adiciona ao banco
-            db.session.add(user)
-            db.session.commit()
-
-        # redireciona para a home
-        return redirect("/")
-
-    # carrega a pagina (get)
-    else:
-        return render_template("senha.html")
-'''
 
 @app.route("/coletar", methods=["GET", "POST"])
 #@login_required
@@ -299,7 +146,7 @@ def coletar():
         ids = []
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -333,7 +180,7 @@ def coletar():
         prof_amp = 0
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -394,7 +241,6 @@ def coletar():
             query = request.form.get("videoid")
         elif selector == 'query':
             query = request.form.get("query")
-################################################################################
         # caso seja uma amplicacao da busca ja existente!
         elif selector == 'ampliar':
 
@@ -405,7 +251,6 @@ def coletar():
 
             return redirect("/resultados")
 
-################################################################################
 
         if query == '':
             # caso não haja um termo de busca
@@ -417,11 +262,9 @@ def coletar():
         # varia de acordo com a profundidade
         if profundidade == '0':
             if selector == 'seed':
-
                 videos = search('related', query, 0)
 
             elif selector == 'query':
-                print(session['developer_key'])
                 videos = search('query', query, 0)
 
         elif profundidade == '1':
@@ -504,7 +347,7 @@ def resultados():
     contador = Counter()
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -524,7 +367,7 @@ def resultados():
                 videos.append(line)
 
     # Agora com os edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -593,8 +436,8 @@ def navegar(id = None, id2 = None):
             lista_final = []
 
             #nome dos arquivos
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
             # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
             # abre o arquivo e le os dados
@@ -674,7 +517,7 @@ def navegar(id = None, id2 = None):
             video_name = ''
 
             #nome do arquivo
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
             # abre o arquivo e le os dados
             with open(nome_edges, 'r') as csvfile:
@@ -689,7 +532,7 @@ def navegar(id = None, id2 = None):
                             video_name = row[1]
 
             # variavel com o nome do arquivo
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
             # abre o arquivo e le os dados
             with open(nome_nodes, 'r') as csvfile2:
@@ -740,7 +583,7 @@ def navegar(id = None, id2 = None):
         videos = []
 
         # variavel com o nome do arquivo
-        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -771,7 +614,7 @@ def navegar(id = None, id2 = None):
         # renderiza a pagina
         return render_template("navegar.html",
                                 videos = videos,
-                                profundidade = '0 - seeds',
+                                profundidade = '0',
                                 page='navegar'
                                 )
 
@@ -789,7 +632,7 @@ def analisar():
     videos = []
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -826,9 +669,9 @@ def tabelas():
 
     # mostra a pagina
     #if request.method == "GET":
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' + session['developer_key'] + '-gdf.gdf'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_gdf = 'static/' + session['user_id'] + '-gdf.gdf'
 
 
 
@@ -911,9 +754,9 @@ def apagar():
     DICT.clear()
 
     # configura os nomes dos arquivos
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' + session['developer_key'] + '-gdf.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_gdf = 'static/' + session['user_id'] + '-gdf.csv'
 
 
     # cria um novo arquivo de nodes
@@ -969,7 +812,7 @@ def get_nodes():
     node_check = []
 
     # nome do arquivo
-    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -985,7 +828,7 @@ def get_nodes():
                 #node_check.append(row[0])
 
     # Agora com os edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1082,7 +925,7 @@ def get_edges():
     edges = []
 
     # nome do arquivo de edges
-    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1131,9 +974,6 @@ def search(mode, query, profundidade):
     # aviavel usada para contar a quantidade de
     # respostas em cada chamada da api
     contador_loop = 0
-
-    #test
-    session['developer_key']
 
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
@@ -1216,23 +1056,9 @@ def search(mode, query, profundidade):
                         search_result["id"]["videoId"],
                         search_result["snippet"]["title"]
                         ]
-            # se for uma busca por termo, coloca o termo na tabela para referencia
-            '''
-            elif mode == 'query':
-                # cria um edge
-                edge = ['query result',
-                        'query: ' + query,
-                        search_result["id"]["videoId"],
-                        search_result["snippet"]["title"],
-                        profundidade,
-                        contador_loop
-                        ]
-            '''
-            # verifica se o usuário prefere se os dados sejam salvos
-            #if savemode == True:
 
-            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
 
             if mode == 'related':
                 # adiciona o node a tabela de nodes
