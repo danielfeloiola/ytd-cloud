@@ -680,7 +680,7 @@ def arquivogdf():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' + session['developer_key'] + '-gdf.gdf'
+    nome_gdf = 'static/grafo.gdf'
 
     # CRIA UMA TABELA EM GDF
 
@@ -724,13 +724,10 @@ def arquivogdf():
                          'true']
             gdfwriter.writerow(line_edge)
 
-    #nome_novo_arquivo = 'static/gephi-gdf.gdf'
-
-    os.rename(nome_gdf, 'static/gephi-gdf.gdf/')
+    gdf_file.close()
 
 
-
-    return send_file('static/gephi-gdf.gdf', as_attachment=True)
+    return send_file(nome_gdf, as_attachment=True)
 
 @app.route("/nodes")
 @login_required
@@ -742,12 +739,23 @@ def nodes():
     # mostra a pagina
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
-    #nome_novo_arquivo = 'static/nodes.csv'
-    os.popen('cp nome_nodes static/nodes.csv/')
+
+    nome_final = 'static/nodes.csv'
 
 
+    arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
+    writer = csv.writer(arquivo_final, lineterminator = '\n')
 
-    return send_file('static/nodes.csv', as_attachment=True)
+
+    with open(nome_nodes, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+
+        for line in reader:
+            writer.writerow(line)
+
+    arquivo_final.close()
+
+    return send_file(nome_final, as_attachment=True)
 
 @app.route("/edges")
 @login_required
@@ -756,15 +764,23 @@ def edges():
     muda o nome do arquivo para download
     """
 
-    # mostra a pagina
-    #if request.method == "GET":
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    #nome_novo_arquivo = 'static/edges.csv'
-    os.popen('cp nome_edges static/edges.csv')
+    nome_final = 'static/edges.csv'
+
+    arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
+    writer = csv.writer(arquivo_final, lineterminator = '\n')
 
 
+    with open(nome_edges, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
 
-    return send_file('static/edges.csv', as_attachment=True)
+        for line in reader:
+            writer.writerow(line)
+
+    arquivo_final.close()
+
+
+    return send_file(nome_final, as_attachment=True)
 
 
 @app.route("/confirma")
