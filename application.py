@@ -1,14 +1,16 @@
 # IMPORT STATEMENTS (DUH!)
 import csv
 import os
+import random
+import string
+
+from datetime import timedelta
+
 from collections import Counter
-#from cs50 import SQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
+
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
 from flask_session import Session
-#from flask_sqlalchemy import SQLAlchemy
-#from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-#from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
 from helpers import apology, apology_two, apology_three, login_required
 
@@ -16,11 +18,6 @@ from helpers import apology, apology_two, apology_three, login_required
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
-
-import random
-import string
-from datetime import timedelta
-
 
 
 # VARIAVEIS GLOBAIS
@@ -47,7 +44,8 @@ socketio = SocketIO(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # secret key
-app.config["SECRET_KEY"] = os.getenv("KEY")
+#app.config["SECRET_KEY"] = os.getenv("KEY")
+app.config["SECRET_KEY"] = "shdfkjsbdjkfybdskjyfv"
 
 # teste da session
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
@@ -86,9 +84,9 @@ def index():
             session['developer_key'] = api_field
 
             # gera um id usando caracteres aleatorios
-            letters = string.ascii_letters
-            id = ''.join(random.choice(letters) for i in range(20))
-            session['user_id'] = id
+            #letters = string.ascii_letters
+            #id = ''.join(random.choice(letters) for i in range(20))
+            #session['user_id'] = id
         else:
             return render_template("index.html",
                                     msg="Forneça chave da API",
@@ -121,7 +119,7 @@ def logout():
 
 
 @app.route("/coletar", methods=["GET", "POST"])
-#@login_required
+@login_required
 def coletar():
     """
     GET: Mostra a pagina com formulario para a coleta
@@ -146,7 +144,7 @@ def coletar():
         ids = []
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -180,7 +178,7 @@ def coletar():
         prof_amp = 0
 
         # nome do arquivo de nos
-        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -323,7 +321,7 @@ def coletar():
 
 @app.route("/resultados")
 
-#@login_required
+@login_required
 def resultados():
     """
     Cria uma pagina mostrando os videos coletados
@@ -347,7 +345,7 @@ def resultados():
     contador = Counter()
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -367,7 +365,7 @@ def resultados():
                 videos.append(line)
 
     # Agora com os edges
-    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -436,8 +434,8 @@ def navegar(id = None, id2 = None):
             lista_final = []
 
             #nome dos arquivos
-            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
-            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
             # 1 - PEGA OS ID's DOS RELACIONADOS AO ID NA LISTA DE EDGES
             # abre o arquivo e le os dados
@@ -517,7 +515,7 @@ def navegar(id = None, id2 = None):
             video_name = ''
 
             #nome do arquivo
-            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
             # abre o arquivo e le os dados
             with open(nome_edges, 'r') as csvfile:
@@ -532,7 +530,7 @@ def navegar(id = None, id2 = None):
                             video_name = row[1]
 
             # variavel com o nome do arquivo
-            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
             # abre o arquivo e le os dados
             with open(nome_nodes, 'r') as csvfile2:
@@ -583,7 +581,7 @@ def navegar(id = None, id2 = None):
         videos = []
 
         # variavel com o nome do arquivo
-        nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+        nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
         # abre o arquivo e le os dados
         with open(nome_nodes, 'r') as csvfile:
@@ -621,7 +619,7 @@ def navegar(id = None, id2 = None):
 
 
 @app.route("/analisar")
-#@login_required
+@login_required
 def analisar():
     """
     Cria uma visualização usando os dados coletados
@@ -632,7 +630,7 @@ def analisar():
     videos = []
 
     # nome do arquivo de nos
-    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -661,23 +659,31 @@ def analisar():
 
 
 @app.route("/tabelas")
-#@login_required
+@login_required
 def tabelas():
     """
     Renderiza uma página para baixar as tabelas
     """
 
+    return render_template("tabelas.html",
+                            page='tabelas'
+                            )
+
+@app.route("/arquivogdf")
+@login_required
+def arquivogdf():
+    """
+    Cria um arquivo GDF para download
+    """
+
     # mostra a pagina
     #if request.method == "GET":
-    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
-    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
-    nome_gdf = 'static/' + session['user_id'] + '-gdf.gdf'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_gdf = 'static/' + session['developer_key'] + '-gdf.gdf'
 
-
-
-    ############################################################################
     # CRIA UMA TABELA EM GDF
-    ############################################################################
+
     check = []
 
     gdf_file = open(nome_gdf, 'w')
@@ -718,16 +724,47 @@ def tabelas():
                          'true']
             gdfwriter.writerow(line_edge)
 
+    #nome_novo_arquivo = 'static/gephi-gdf.gdf'
+
+    os.rename(nome_gdf, 'static/gephi-gdf.gdf')
 
 
 
+    return send_file('static/gephi-gdf.gdf', as_attachment=True)
 
-    return render_template("tabelas.html",
-                            nodes=nome_nodes,
-                            edges=nome_edges,
-                            gdf=nome_gdf,
-                            page='tabelas'
-                            )
+@app.route("/nodes")
+@login_required
+def nodes():
+    """
+    muda o nome do arquivo para download
+    """
+
+    # mostra a pagina
+    #if request.method == "GET":
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    #nome_novo_arquivo = 'static/nodes.csv'
+    os.popen('cp nome_nodes static/nodes.csv')
+
+
+
+    return send_file('static/nodes.csv', as_attachment=True)
+
+@app.route("/edges")
+@login_required
+def edges():
+    """
+    muda o nome do arquivo para download
+    """
+
+    # mostra a pagina
+    #if request.method == "GET":
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    #nome_novo_arquivo = 'static/edges.csv'
+    os.popen('cp nome_edges static/edges.csv')
+
+
+
+    return send_file('static/edges.csv', as_attachment=True)
 
 
 @app.route("/confirma")
@@ -739,7 +776,7 @@ def confirma():
 
     # mostra a pagina
     #if request.method == "GET":
-    return render_template("confirma.html")
+    return render_template("confirma.html", as_attachment=True)
 
 
 
@@ -754,9 +791,9 @@ def apagar():
     DICT.clear()
 
     # configura os nomes dos arquivos
-    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
-    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
-    nome_gdf = 'static/' + session['user_id'] + '-gdf.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
+    nome_gdf = 'static/' + session['developer_key'] + '-gdf.csv'
 
 
     # cria um novo arquivo de nodes
@@ -812,7 +849,7 @@ def get_nodes():
     node_check = []
 
     # nome do arquivo
-    nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
+    nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
     # abre o arquivo e le os dados
     with open(nome_nodes, 'r') as csvfile:
@@ -828,7 +865,7 @@ def get_nodes():
                 #node_check.append(row[0])
 
     # Agora com os edges
-    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -925,7 +962,7 @@ def get_edges():
     edges = []
 
     # nome do arquivo de edges
-    nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+    nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
     # abre o arquivo e le os dados
     with open(nome_edges, 'r') as csvfile2:
@@ -1057,8 +1094,8 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["title"]
                         ]
 
-            nome_nodes = 'static/' + session['user_id'] + '-nodes.csv'
-            nome_edges = 'static/' + session['user_id'] + '-edges.csv'
+            nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
+            nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
 
             if mode == 'related':
                 # adiciona o node a tabela de nodes
