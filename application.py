@@ -726,7 +726,7 @@ def arquivogdf():
 
     #nome_novo_arquivo = 'static/gephi-gdf.gdf'
 
-    os.rename(nome_gdf, 'static/gephi-gdf.gdf')
+    os.rename(nome_gdf, 'static/gephi-gdf.gdf/')
 
 
 
@@ -743,7 +743,7 @@ def nodes():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
     #nome_novo_arquivo = 'static/nodes.csv'
-    os.popen('cp nome_nodes static/nodes.csv')
+    os.popen('cp nome_nodes static/nodes.csv/')
 
 
 
