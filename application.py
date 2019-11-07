@@ -4,7 +4,7 @@ import os
 import random
 import string
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from collections import Counter
 
@@ -221,6 +221,8 @@ def coletar():
         # para mudancas no max results
         if mr_field != None and mr_field != '':
             session['max_results'] = mr_field
+        else:
+            session['max_results'] = 5
 
         # verificacoes de seguranca
 
@@ -680,7 +682,7 @@ def arquivogdf():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/grafo.gdf'
+    nome_gdf = 'static/' +  datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-grafo.gdf'
 
     # CRIA UMA TABELA EM GDF
 
@@ -688,7 +690,15 @@ def arquivogdf():
 
     gdf_file = open(nome_gdf, 'w')
     gdfwriter = csv.writer(gdf_file, lineterminator = '\n')
-    gdfwriter.writerow(['nodedef>name VARCHAR','label VARCHAR'])
+    gdfwriter.writerow(['nodedef>name VARCHAR',
+                        'label VARCHAR',
+                        'channel_title VARCHAR',
+                        'channel_id VARCHAR',
+                        'published_at VARCHAR',
+                        'thumbnail_url VARCHAR',
+                        'type VARCHAR',
+                        'profundidade VARCHAR'
+                        ])
 
     nodes_csv = open(nome_nodes, 'r')
     reader_nodes = csv.reader(nodes_csv, delimiter=',')
@@ -701,7 +711,13 @@ def arquivogdf():
             # adiciona os videos a lista
             if row[0] not in check:
                 line = [row[0],
-                        row[1]
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                        row[6],
+                        row[7]
                         ]
                 gdfwriter.writerow(line)
                 check.append(row[0])
@@ -740,7 +756,7 @@ def nodes():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
-    nome_final = 'static/nodes.csv'
+    nome_final = 'static/' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-nodes.csv'
 
 
     arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
@@ -765,7 +781,7 @@ def edges():
     """
 
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_final = 'static/edges.csv'
+    nome_final = 'static/' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-edges.csv'
 
     arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
     writer = csv.writer(arquivo_final, lineterminator = '\n')

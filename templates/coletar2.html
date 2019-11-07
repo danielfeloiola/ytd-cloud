@@ -37,8 +37,20 @@
 
 
         <hr>
-        <input autocomplete="off" autofocus class="form-control" name="profundidade" placeholder="Profundidade (1)" type="text" disabled><br><br>
-        <input autocomplete="off" class="form-control" name="maxresults" placeholder="Resultados (1-50)" type="number"><br><br>
+        <input autocomplete="off" class="form-control" name="profundidade" placeholder="Profundidade (1)" type="text" disabled>
+        <div class="help-tip">
+            <p>A profundidade 0 retorna apenas os dados do vídeo seed ou os resultados de uma busca. A profundidade 1 adiciona os
+                recomendados de cada um dos resultados ou do seed, e a profundidade 2 os recomendados desses recomendados.
+                Também é possivel fazer uma busca de profundidade 0 (sem relacionados) e posteriormente voltar e adicionar os relacionados</p>
+        </div>
+        <br>
+        <br>
+        <input autocomplete="off" class="form-control" name="maxresults" placeholder="Resultados (1-50)" type="number">
+        <div class="help-tip">
+            <p>Especifica a quantidade máxima de vídeos que será pedida a cada requisição da API. O valor padrão é 5. Para saber mais clique <a href="https://developers.google.com/youtube/v3/docs/search/list?hl=pt-br">aqui</a></p>
+        </div>
+        <br>
+        <br>
 
         <button class="btn btn-primary" type="submit">Coletar dados</button>
     </form>
