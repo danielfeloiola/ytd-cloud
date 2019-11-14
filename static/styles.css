@@ -311,6 +311,7 @@ img {
   border-radius: 50%;
   margin-left: -47%;
   margin-top: 20%;
+  z-index:1;
 }
 
 .left:after {
@@ -333,6 +334,7 @@ img {
   margin-top: 20%;
   border-radius: 50%;
   margin-left: 45%;
+  z-index:1;
 }
 
 .right:after {

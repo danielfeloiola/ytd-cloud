@@ -3,9 +3,7 @@ import csv
 import os
 import random
 import string
-
 from datetime import timedelta, datetime
-
 from collections import Counter
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
@@ -838,7 +836,8 @@ def apagar():
                           'published_at',
                           'thumbnail_url',
                           'type',
-                          'depth'
+                          'profundidade',
+                          'data_hora'
                           ])
 
     # cria um novo arquivo de edges
@@ -1044,6 +1043,9 @@ def search(mode, query, profundidade):
     # respostas em cada chamada da api
     contador_loop = 0
 
+    # cria uma variável para a hora
+    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
                     YOUTUBE_API_VERSION,
@@ -1064,6 +1066,19 @@ def search(mode, query, profundidade):
                                         part="id,snippet",
                                         maxResults=session['max_results'],
                                         type='video').execute()
+
+            ##############
+
+
+            video_response = youtube.videos().list(
+                                        id=query,
+                                        part='snippet'
+                                        ).execute()
+
+            for video_result in video_response.get("items", []):
+                VIDEO_NAMES[video_result["id"]] = video_result["snippet"]["title"]
+
+
 
         # se o vídeo já foi buscado na api usa os valores adicioandos ao DICT
         # para evitar gastos da cota da API
@@ -1095,7 +1110,8 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["publishedAt"],
                         search_result["snippet"]["thumbnails"]["default"]["url"],
                         "video relacionado",
-                        profundidade
+                        profundidade,
+                        hora
                         ]
 
             elif mode == 'query':
@@ -1107,7 +1123,8 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["publishedAt"],
                         search_result["snippet"]["thumbnails"]["default"]["url"],
                         "resultado de busca",
-                        profundidade
+                        profundidade,
+                        hora
                         ]
 
             # adiciona o node a lista de videos
