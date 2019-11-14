@@ -81,9 +81,10 @@ tr:hover
 
 footer
 {
-    position: absolute;
-    margin-left: 35%;
+    position: fixed;
+    margin-left: 17%;
     bottom:10px;
+    background-color: white;
 
 }
 

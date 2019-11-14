@@ -837,6 +837,7 @@ def apagar():
                           'thumbnail_url',
                           'type',
                           'profundidade',
+                          'posição',
                           'data_hora'
                           ])
 
@@ -1094,7 +1095,7 @@ def search(mode, query, profundidade):
                                                 maxResults=session['max_results'],
                                                 type='video').execute()
 
-
+    contador_posicao = 0
     # itera pelos resultados da busca e adiciona a lista
     for search_result in search_response.get("items", []):
 
@@ -1111,6 +1112,7 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["thumbnails"]["default"]["url"],
                         "video relacionado",
                         profundidade,
+                        contador_posicao,
                         hora
                         ]
 
@@ -1124,11 +1126,14 @@ def search(mode, query, profundidade):
                         search_result["snippet"]["thumbnails"]["default"]["url"],
                         "resultado de busca",
                         profundidade,
+                        contador_posicao,
                         hora
                         ]
 
             # adiciona o node a lista de videos
             videos.append(node)
+
+            contador_posicao += 1
 
             # adiciona o video a lista com nomes de videos
             VIDEO_NAMES[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
