@@ -50,10 +50,10 @@ unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
 aware_est = pytz.timezone('US/Eastern').localize(unaware_est, is_dst=None)
 
 # convert it to utc timezone
-hora_local = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
 
 # convert it to a string
-#print(utc_dt.strftime("%Y-%m-%dT%H:%M:%SZ")) # -> 2013-08-08T20:05:03Z
+hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
 
 
 
