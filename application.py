@@ -34,7 +34,7 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 # cria uma variável para a hora
-hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+hora = datetime.now().strptime("%Y-%m-%d %H:%M:%S")
 local = timezone('America/Sao_Paulo')
 UTC = timezone('UTC')
 hora_com_fuso = UTC.localize(hora)
