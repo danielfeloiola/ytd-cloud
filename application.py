@@ -47,7 +47,7 @@ local = pytz.timezone('America/Sao_Paulo')
 unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
 
 # make it a timezone-aware datetime object
-aware_est = pytz.timezone('US/Eastern').localize(unaware_est, is_dst=None)
+aware_est = pytz.timezone('US/Pacific').localize(unaware_est, is_dst=None)
 
 # convert it to utc timezone
 hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
