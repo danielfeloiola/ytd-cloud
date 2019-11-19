@@ -34,11 +34,30 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 # cria uma variável para a hora
-hora = datetime.now().strptime("%Y-%m-%d %H:%M:%S")
-local = timezone('America/Sao_Paulo')
-UTC = timezone('UTC')
-hora_com_fuso = UTC.localize(hora)
-hora_local = hora_com_fuso.astimezone(local)
+#hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#local = timezone('America/Sao_Paulo')
+#UTC = timezone('UTC')
+#hora_com_fuso = UTC.localize(hora)
+#hora_local = hora_com_fuso.astimezone(local)
+
+
+# convert the time string to a datetime object
+#dt_str = "8/8/2013 4:05:03 PM"
+unaware_est = datetime.strptime(datetime.now(),"%Y-%m-%d %H:%M:%S")
+
+# make it a timezone-aware datetime object
+aware_est = pytz.timezone('US/Eastern').localize(unaware_est, is_dst=None)
+
+# convert it to utc timezone
+hora_local = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+
+# convert it to a string
+print(utc_dt.strftime("%Y-%m-%dT%H:%M:%SZ")) # -> 2013-08-08T20:05:03Z
+
+
+
+
+
 
 # Configura a aplicacao
 app = Flask(__name__)
