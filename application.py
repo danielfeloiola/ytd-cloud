@@ -36,7 +36,7 @@ YOUTUBE_API_VERSION = "v3"
 
 # cria uma variável para a hora
 hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#local = timezone('America/Sao_Paulo')
+local = timezone('America/Sao_Paulo')
 #UTC = timezone('UTC')
 #hora_com_fuso = UTC.localize(hora)
 #hora_local = hora_com_fuso.astimezone(local)
@@ -53,7 +53,7 @@ aware_est = pytz.timezone('US/Eastern').localize(unaware_est, is_dst=None)
 hora_local = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
 
 # convert it to a string
-print(utc_dt.strftime("%Y-%m-%dT%H:%M:%SZ")) # -> 2013-08-08T20:05:03Z
+#print(utc_dt.strftime("%Y-%m-%dT%H:%M:%SZ")) # -> 2013-08-08T20:05:03Z
 
 
 
