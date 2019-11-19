@@ -1047,7 +1047,7 @@ def search(mode, query, profundidade):
 
     # cria uma variável para a hora
     hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    local= 'America/Sao_Paulo'
+    local = timezone('America/Sao_Paulo')
     hora_local = local.localize(hora)
 
     # configuracao da API
