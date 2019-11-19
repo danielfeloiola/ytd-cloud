@@ -33,6 +33,13 @@ VIDEO_NAMES = {}
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
+# cria uma variável para a hora
+hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+local = timezone('America/Sao_Paulo')
+UTC = timezone('UTC')
+hora_com_fuso = UTC.localize(hora)
+hora_local = hora_com_fuso.astimezone(local)
+
 # Configura a aplicacao
 app = Flask(__name__)
 
@@ -681,7 +688,7 @@ def arquivogdf():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_gdf = 'static/' +  datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-grafo.gdf'
+    nome_gdf = 'static/' +  hora_local + '-grafo.gdf'
 
     # CRIA UMA TABELA EM GDF
 
@@ -755,7 +762,7 @@ def nodes():
     #if request.method == "GET":
     nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
 
-    nome_final = 'static/' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-nodes.csv'
+    nome_final = 'static/' + hora_local + '-nodes.csv'
 
 
     arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
@@ -780,7 +787,7 @@ def edges():
     """
 
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
-    nome_final = 'static/' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '-edges.csv'
+    nome_final = 'static/' + hora_local + '-edges.csv'
 
     arquivo_final = open(nome_final, 'w', newline = '', encoding = 'utf8')
     writer = csv.writer(arquivo_final, lineterminator = '\n')
@@ -1044,11 +1051,6 @@ def search(mode, query, profundidade):
     # aviavel usada para contar a quantidade de
     # respostas em cada chamada da api
     contador_loop = 0
-
-    # cria uma variável para a hora
-    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    local = timezone('America/Sao_Paulo')
-    hora_local = local.localize(hora)
 
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
