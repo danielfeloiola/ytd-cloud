@@ -5,6 +5,7 @@ import random
 import string
 from datetime import timedelta, datetime
 from collections import Counter
+from pytz import timezone
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
 from flask_session import Session
@@ -1046,6 +1047,8 @@ def search(mode, query, profundidade):
 
     # cria uma variável para a hora
     hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    local= 'America/Sao_Paulo'
+    hora_local = local.localize(hora)
 
     # configuracao da API
     youtube = build(YOUTUBE_API_SERVICE_NAME,
@@ -1113,7 +1116,7 @@ def search(mode, query, profundidade):
                         "video relacionado",
                         profundidade,
                         contador_posicao,
-                        hora
+                        hora_local
                         ]
 
             elif mode == 'query':
@@ -1127,7 +1130,7 @@ def search(mode, query, profundidade):
                         "resultado de busca",
                         profundidade,
                         contador_posicao,
-                        hora
+                        hora_local
                         ]
 
             # adiciona o node a lista de videos
