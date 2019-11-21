@@ -13,7 +13,7 @@ from flask import Flask, flash, jsonify, redirect, render_template, request, ses
 from flask_session import Session
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flask_socketio import SocketIO, emit
-from helpers import apology, apology_three, login_required
+from helpers import apology, login_required #apology_three,
 
 # API do Google
 from apiclient.discovery import build
@@ -169,7 +169,7 @@ def coletar():
             if '2' not in numeros:
                 return render_template("coletar2.html", page=page)
             else:
-                return apology_three("Não é possível coletar mais dados", page=page)
+                return apology("Não é possível coletar mais dados", page=page)
 
 
         return render_template("coletar.html", page=page)
