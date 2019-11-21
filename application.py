@@ -5,14 +5,15 @@ import random
 import string
 from datetime import timedelta, datetime
 from collections import Counter
-#from pytz import timezone
 import pytz
+import urllib.parse
+
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
 from flask_session import Session
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flask_socketio import SocketIO, emit
-from helpers import apology, apology_two, apology_three, login_required
+from helpers import apology, apology_three, login_required
 
 # API do Google
 from apiclient.discovery import build
@@ -34,32 +35,6 @@ VIDEO_NAMES = {}
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-# cria uma variável para a hora
-hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-local = pytz.timezone('America/Sao_Paulo')
-#UTC = timezone('UTC')
-#hora_com_fuso = UTC.localize(hora)
-#hora_local = hora_com_fuso.astimezone(local)
-
-
-# convert the time string to a datetime object
-#dt_str = "8/8/2013 4:05:03 PM"
-unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
-
-# make it a timezone-aware datetime object
-aware_est = pytz.timezone('UTC').localize(unaware_est, is_dst=None)
-
-# convert it to utc timezone
-hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
-
-# convert it to a string
-hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
-
-
-
-
-
-
 # Configura a aplicacao
 app = Flask(__name__)
 
@@ -70,8 +45,8 @@ socketio = SocketIO(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # secret key
-#app.config["SECRET_KEY"] = os.getenv("KEY")
-app.config["SECRET_KEY"] = "shdfkjsbdjkfybdskjyfv"
+app.config["SECRET_KEY"] = os.getenv("KEY")
+#app.config["SECRET_KEY"] = "shdfkjsbdjkfybdskjyfv"
 
 # teste da session
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
@@ -108,6 +83,10 @@ def index():
         # guarda a API ou gera um erro se não houver API
         if api_field != None and api_field !='':
             session['developer_key'] = api_field
+            session['api_error'] = False
+            session['api_code'] = 00
+            session['api_state'] = ''
+
 
             # gera um id usando caracteres aleatorios
             #letters = string.ascii_letters
@@ -360,7 +339,9 @@ def resultados():
     O modo POST mostra apenas os videos seeds
     """
 
-
+    if session['api_error'] == True:
+        session['api_error'] = False
+        return apology(session['api_state'], session['api_code'])
 
     # le todos os dados da tabela de nos
     # conta quantas vezes cada vídeo aparece
@@ -428,7 +409,7 @@ def resultados():
 
     # verifica se há dados
     if len(lista_final) == 0:
-        return apology_two("Não há dados para mostrar",
+        return apology("Não há dados para mostrar",
                             page='resultados'
                             )
 
@@ -532,8 +513,6 @@ def navegar(id = None, id2 = None):
                                     page='navegar'
                                     )
 
-
-
         # PARA A BUSCA COM APENAS 1 ID
         else:
             videos = []
@@ -633,7 +612,7 @@ def navegar(id = None, id2 = None):
 
         # verifica se há dados
         if len(videos) == 0:
-            return apology_two("Não há dados para mostrar",
+            return apology("Não há dados para mostrar",
                                 page='navegar'
                                 )
 
@@ -678,7 +657,7 @@ def analisar():
                 videos.append(line)
 
     if len(videos) == 0:
-        return apology_two("Não há dados para mostrar", page='analisar')
+        return apology("Não há dados para mostrar", page='analisar')
 
     # Renderiza a página
     return render_template("analisar.html", page='analisar')
@@ -703,6 +682,23 @@ def arquivogdf():
     """
     Cria um arquivo GDF para download
     """
+
+    # AJUSTA A HORA DO RELOGIO PARA A HORA LOCAL
+    # cria uma variável para a hora
+    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    local = pytz.timezone('America/Sao_Paulo')
+
+    # convert the time string to a datetime object
+    unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
+
+    # make it a timezone-aware datetime object
+    aware_est = pytz.timezone('UTC').localize(unaware_est, is_dst=None)
+
+    # convert it to utc timezone
+    hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+
+    # convert it to a string
+    hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
 
     # mostra a pagina
     #if request.method == "GET":
@@ -777,6 +773,22 @@ def nodes():
     """
     muda o nome do arquivo para download
     """
+    # AJUSTA A HORA DO RELOGIO PARA A HORA LOCAL
+    # cria uma variável para a hora
+    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    local = pytz.timezone('America/Sao_Paulo')
+
+    # convert the time string to a datetime object
+    unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
+
+    # make it a timezone-aware datetime object
+    aware_est = pytz.timezone('UTC').localize(unaware_est, is_dst=None)
+
+    # convert it to utc timezone
+    hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+
+    # convert it to a string
+    hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
 
     # mostra a pagina
     #if request.method == "GET":
@@ -805,6 +817,22 @@ def edges():
     """
     muda o nome do arquivo para download
     """
+    # AJUSTA A HORA DO RELOGIO PARA A HORA LOCAL
+    # cria uma variável para a hora
+    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    local = pytz.timezone('America/Sao_Paulo')
+
+    # convert the time string to a datetime object
+    unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
+
+    # make it a timezone-aware datetime object
+    aware_est = pytz.timezone('UTC').localize(unaware_est, is_dst=None)
+
+    # convert it to utc timezone
+    hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+
+    # convert it to a string
+    hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
 
     nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
     nome_final = 'static/' + hora_local + '-edges.csv'
@@ -1068,6 +1096,23 @@ def search(mode, query, profundidade):
 
     """
 
+    # AJUSTA A HORA DO RELOGIO PARA A HORA LOCAL
+    # cria uma variável para a hora
+    hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    local = pytz.timezone('America/Sao_Paulo')
+
+    # convert the time string to a datetime object
+    unaware_est = datetime.strptime(hora,"%Y-%m-%d %H:%M:%S")
+
+    # make it a timezone-aware datetime object
+    aware_est = pytz.timezone('UTC').localize(unaware_est, is_dst=None)
+
+    # convert it to utc timezone
+    hora_local_dt = aware_est.astimezone(local) # `.normalize()` is not necessary for UTC
+
+    # convert it to a string
+    hora_local = hora_local_dt.strftime("%Y-%m-%d %H:%M:%S") # -> 2013-08-08T20:05:03Z
+
     # aviavel usada para contar a quantidade de
     # respostas em cada chamada da api
     contador_loop = 0
@@ -1086,20 +1131,24 @@ def search(mode, query, profundidade):
 
         # se o video ainda nao foi adicionado ao dicionario
         if query not in DICT:
+            try:
+                # faz a busca no youtube
+                search_response = youtube.search().list(relatedToVideoId=query,
+                                            part="id,snippet",
+                                            maxResults=session['max_results'],
+                                            type='video').execute()
 
-            # faz a busca no youtube
-            search_response = youtube.search().list(relatedToVideoId=query,
-                                        part="id,snippet",
-                                        maxResults=session['max_results'],
-                                        type='video').execute()
-
-            ##############
-
-
-            video_response = youtube.videos().list(
-                                        id=query,
-                                        part='snippet'
+                video_response = youtube.videos().list(
+                                            id=query,
+                                            part='snippet'
                                         ).execute()
+            except HttpError as e:
+
+                session['api_code'] = e.resp.status
+                session['api_error'] = True
+                session['api_state'] = 'Erro da API'
+                #print(e)
+                return []
 
             for video_result in video_response.get("items", []):
                 VIDEO_NAMES[video_result["id"]] = video_result["snippet"]["title"]
@@ -1115,10 +1164,20 @@ def search(mode, query, profundidade):
 
     # se for uma busca por um termo, faz a busca - nao passa pelo dicionario
     elif mode == "query":
-        search_response = youtube.search().list(q=query,
-                                                part="id,snippet",
-                                                maxResults=session['max_results'],
-                                                type='video').execute()
+        try:
+            search_response = youtube.search().list(q=query,
+                                                    part="id,snippet",
+                                                    maxResults=session['max_results'],
+                                                    type='video').execute()
+
+        except HttpError as e:
+
+            session['api_code'] = e.resp.status
+            session['api_error'] = True
+            session['api_state'] = 'Erro da API'
+            #print(e)
+            return []
+
 
     contador_posicao = 0
     # itera pelos resultados da busca e adiciona a lista
@@ -1209,6 +1268,10 @@ def errorhandler(e):
 
     if not isinstance(e, HTTPException):
         e = InternalServerError()
+        print("---------------------------")
+        print(e)
+        print(e.code)
+        print(e.name)
     return apology(e.name, e.code)
 
 
