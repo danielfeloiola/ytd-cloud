@@ -1,5 +1,5 @@
 {
-  "name": "youtube_data",
-  "description": "A simple web application to analyse youtube data",
-  "repository": "https://github.com/danielfeloiola/ytd"
+  "name": "YouTube_data",
+  "description": "Um simples aplicativo para coletar e visualizar dados do YouTube",
+  "repository": "https://github.com/danielfeloiola/ytd-cloud"
 }

@@ -86,11 +86,6 @@ def index():
             session['api_code'] = 00
             session['api_state'] = ''
 
-
-            # gera um id usando caracteres aleatorios
-            #letters = string.ascii_letters
-            #id = ''.join(random.choice(letters) for i in range(20))
-            #session['user_id'] = id
         else:
             return render_template("index.html",
                                     msg="Forneça chave da API",
@@ -978,16 +973,6 @@ def get_nodes():
         if video[0] not in lista_unica:
             # o n_video conta o numero de vezes que cada
             # video aparece no dataset
-            '''
-            ao invés do append(contador[video]) criar condições para adicionar
-            os valores do tamanho e cor a lista_final
-            if contador[video] == 1:
-                size = 1
-                n_video.append(size)
-            elif 1 < contador < 10:
-                size = 2
-                n_video.append(size)
-            '''
             n_video = video
 
 
@@ -1151,7 +1136,6 @@ def search(mode, query, profundidade):
 
             for video_result in video_response.get("items", []):
                 VIDEO_NAMES[video_result["id"]] = video_result["snippet"]["title"]
-
 
 
         # se o vídeo já foi buscado na api usa os valores adicioandos ao DICT
