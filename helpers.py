@@ -18,24 +18,9 @@ def apology(message, code=400, page=''):
         return s
 
     if page == 'coletar':
-        return render_template("apology2.html", top=code, bottom=escape(message),page=page), code
+        return render_template("apology_resultados.html", top=code, bottom=escape(message),page=page), code
     else:
         return render_template("apology.html", top=code, bottom=escape(message), page=page), code
-
-
-#def apology_three(message, page, code=400):
-#    """Render message as an apology to user."""
-#    def escape(s):
-#        """
-#        Escape special characters.
-#
-#        https://github.com/jacebrowning/memegen#special-characters
-#        """
-#        for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
-#                         ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
-#            s = s.replace(old, new)
-#        return s
-#    return render_template("apology2.html", top=code, bottom=escape(message),page=page), code
 
 
 def login_required(f):

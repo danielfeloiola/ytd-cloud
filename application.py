@@ -13,7 +13,7 @@ from flask import Flask, flash, jsonify, redirect, render_template, request, ses
 from flask_session import Session
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flask_socketio import SocketIO, emit
-from helpers import apology, login_required #apology_three,
+from helpers import apology, login_required
 
 # API do Google
 from apiclient.discovery import build
@@ -46,7 +46,6 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # secret key
 app.config["SECRET_KEY"] = os.getenv("KEY")
-#app.config["SECRET_KEY"] = "shdfkjsbdjkfybdskjyfv"
 
 # teste da session
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
@@ -1268,10 +1267,6 @@ def errorhandler(e):
 
     if not isinstance(e, HTTPException):
         e = InternalServerError()
-        print("---------------------------")
-        print(e)
-        print(e.code)
-        print(e.name)
     return apology(e.name, e.code)
 
 
