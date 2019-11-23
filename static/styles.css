@@ -41,6 +41,9 @@ main
     /* center contents */
     text-align: center;
 }
+.p-5 {
+    padding-top: 1rem;
+}
 
 main img
 {
