@@ -1,7 +1,6 @@
 nav .navbar
 {
     background-color: red;
-
 }
 
 nav .navbar-brand
@@ -9,7 +8,6 @@ nav .navbar-brand
     /* size for brand */
     font-size: xx-large;
     margin-bottom: 0.3em;
-
 }
 
 /* colors for brand */
@@ -56,7 +54,6 @@ li
 #main
 {
     text-align: left;
-
 }
 
 td
@@ -86,7 +83,6 @@ footer
     margin-left: 17%;
     bottom:10px;
     background-color: white;
-
 }
 
 
@@ -133,7 +129,6 @@ img {
 .breadcrumbs {
     width: 100%;
     margin: auto;
-
 	display: inline-block;
 	overflow: hidden;
 	border-radius: 5px;
@@ -220,71 +215,6 @@ img {
 }
 
 
-
-/*
-.breadcrumbs2 {
-	display: inline-block;
-	overflow: hidden;
-	border-radius: 5px;
-    margin-top: 1em;
-}
-
-.breadcrumbs2 a {
-	text-decoration: none;
-	outline: none;
-	display: block;
-	float: left;
-	font-size: 14px;
-	line-height: 36px;
-	color: white;
-	padding: 0 40px 0 40px;
-	background: #666;
-	background: linear-gradient(#666, #333);
-	position: relative;
-}
-
-.breadcrumbs2 a:first-child {
-	padding-left: 46px;
-	border-radius: 5px 0 0 5px;
-}
-.breadcrumbs2 a:first-child:before {
-	left: 14px;
-}
-.breadcrumbs2 a:last-child {
-	border-radius: 0 5px 5px 0;
-	padding-right: 46px;
-}
-
-.breadcrumbs2 a.active, .breadcrumb a:hover{
-	background: #333;
-	background: linear-gradient(#333, #000);
-}
-.breadcrumbs a.active:after, .breadcrumb a:hover:after {
-	background: #333;
-	background: linear-gradient(135deg, #333, #000);
-}
-
-.breadcrumbs2 a:last-child:after {
-	content: none;
-}
-
-
-.flat2 a, .flat2 a:after {
-	background: #ffffff;
-	color: black;
-	transition: all 0.5s;
-}
-.flat2 a:before {
-	background: white;
-}
-.flat2 a:hover, .flat2 a.active,
-.flat2 a:hover:after, .flat2 a.active:after{
-	background: #9EEB62;
-}
-
-*/
-
-
 .popup {
  position: relative;
  display: inline-block;
@@ -352,8 +282,6 @@ img {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
-
-
 
 
 .breadcrumbs2 {
