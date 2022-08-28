@@ -1169,33 +1169,69 @@ def search(mode, query, profundidade):
         # usa apenas os vídeos recomendados, ignora canais e playlists
         if search_result["id"]["kind"] == "youtube#video":
 
+            #print("--------------------")
+            #print(search_result)
+            #print(search_result["snippet"])
+            #print("--------------------")
+
+
             if mode == 'related':
                 #cria um node
-                node = [search_result["id"]["videoId"],
-                        search_result["snippet"]["title"],
-                        search_result["snippet"]["channelTitle"],
-                        search_result["snippet"]["channelId"],
-                        search_result["snippet"]["publishedAt"],
-                        search_result["snippet"]["thumbnails"]["default"]["url"],
-                        "video relacionado",
-                        profundidade,
-                        contador_posicao,
-                        hora_local
-                        ]
+                # a linha abaixo foi adicionada por um bug na api que nem sempre 
+                # retorna o snippet
+                if "snippet" in search_result:
+                    node = [search_result["id"]["videoId"],
+                            search_result["snippet"]["title"],
+                            search_result["snippet"]["channelTitle"],
+                            search_result["snippet"]["channelId"],
+                            search_result["snippet"]["publishedAt"],
+                            search_result["snippet"]["thumbnails"]["default"]["url"],
+                            "video relacionado",
+                            profundidade,
+                            contador_posicao,
+                            hora_local
+                            ]
+                else:
+                    node = [search_result["id"]["videoId"],
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "video relacionado",
+                            profundidade,
+                            contador_posicao,
+                            hora_local
+                            ]
 
             elif mode == 'query':
                 #cria um node
-                node = [search_result["id"]["videoId"],
-                        search_result["snippet"]["title"],
-                        search_result["snippet"]["channelTitle"],
-                        search_result["snippet"]["channelId"],
-                        search_result["snippet"]["publishedAt"],
-                        search_result["snippet"]["thumbnails"]["default"]["url"],
-                        "resultado de busca",
-                        profundidade,
-                        contador_posicao,
-                        hora_local
-                        ]
+                # a linha abaixo foi adicionada por um bug na api que nem sempre 
+                # retorna o snippet
+                if "snippet" in search_result:
+                    node = [search_result["id"]["videoId"],
+                            search_result["snippet"]["title"],
+                            search_result["snippet"]["channelTitle"],
+                            search_result["snippet"]["channelId"],
+                            search_result["snippet"]["publishedAt"],
+                            search_result["snippet"]["thumbnails"]["default"]["url"],
+                            "resultado de busca",
+                            profundidade,
+                            contador_posicao,
+                            hora_local
+                            ]
+                else:
+                     node = [search_result["id"]["videoId"],
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "sem dados",
+                            "resultado de busca",
+                            profundidade,
+                            contador_posicao,
+                            hora_local
+                            ]
 
             # adiciona o node a lista de videos
             videos.append(node)
@@ -1203,17 +1239,27 @@ def search(mode, query, profundidade):
             contador_posicao += 1
 
             # adiciona o video a lista com nomes de videos
-            VIDEO_NAMES[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
+            try:
+                VIDEO_NAMES[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
+            except:
+                VIDEO_NAMES[search_result["id"]["videoId"]] = "nome nao encontrado"
 
             # alterna entre query e related para a criacao de um edge
             # se for uma buca relacionada, coloca o video buscado
             if mode == 'related':
                 # cria um edge
-                edge = [query,
-                        VIDEO_NAMES[query],
-                        search_result["id"]["videoId"],
-                        search_result["snippet"]["title"]
-                        ]
+                try:
+                    edge = [query,
+                            VIDEO_NAMES[query],
+                            search_result["id"]["videoId"],
+                            search_result["snippet"]["title"]
+                            ]
+                except:
+                    edge = [query,
+                            VIDEO_NAMES[query],
+                            search_result["id"]["videoId"],
+                            "nome nao encontrado"
+                            ]
 
             nome_nodes = 'static/' + session['developer_key'] + '-nodes.csv'
             nome_edges = 'static/' + session['developer_key'] + '-edges.csv'
