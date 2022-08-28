@@ -9,6 +9,3 @@ python-dotenv==0.15.0
 pytz==2021.1
 requests==2.27.1
 Werkzeug==2.1.1
-
-
-
