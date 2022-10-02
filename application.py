@@ -12,7 +12,6 @@ import urllib.parse
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, send_file
 from flask_session import Session
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-from flask_socketio import SocketIO, emit
 from helpers import apology, login_required
 
 # API do Google
@@ -37,9 +36,6 @@ YOUTUBE_API_VERSION = "v3"
 
 # Configura a aplicacao
 app = Flask(__name__)
-
-# socketio
-socketio = SocketIO(app)
 
 # auto-reload
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -911,7 +907,8 @@ def apagar():
     return redirect("/coletar")
 
 
-@socketio.on('get_nodes')
+#@socketio.on('get_nodes')
+@app.route("/get_nodes")
 def get_nodes():
     '''
     Manda os dados dos nodes para o usuario via socket-io
@@ -1020,10 +1017,12 @@ def get_nodes():
 
 
     # emite os dados para o socket-io
-    emit('get_nodes', lista_final)
+    #emit('get_nodes', lista_final)
+    return jsonify(lista_final)
 
 
-@socketio.on('get_edges')
+#@socketio.on('get_edges')
+@app.route("/get_edges")
 def get_edges():
     '''
     Manda os dados dos edges para o usuario via socket-io
@@ -1046,7 +1045,8 @@ def get_edges():
                     edges.append(line2)
 
     # emite os dados para o socket-io
-    emit('get_edges', edges)
+    #emit('get_edges', edges)
+    return jsonify(edges)
 
 
 
@@ -1304,5 +1304,4 @@ def errorhandler(e):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
